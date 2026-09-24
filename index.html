@@ -466,7 +466,7 @@
             <thead>
               <tr class="bg-dark-card2/80 text-xs font-bold text-slate-300 border-b border-dark-border tracking-wide uppercase">
                 <th class="py-3 px-3 w-12 text-center">No</th>
-                <th class="py-3 px-4 min-w-[130px]">회원명</th>
+                <th class="py-3 px-4 min-w-[140px]">회원명 (기준 AVG)</th>
                 <th id="thGameHeaders" class="p-0">
                   <!-- Dynamically Rendered Game Columns -->
                 </th>
@@ -1031,31 +1031,49 @@
       }
     }
 
-    function getScoreColor(val) {
-      const score = parseInt(val, 10);
-      if (score === 300) {
-        // 300 Perfect Game: Bold Red with vivid gold glow
-        return 'text-red-500 font-black glow-gold border-amber-500';
-      }
-      if (score >= 200) {
-        // 200+ Score: Bold Red
-        return 'text-red-500 font-extrabold border-red-500/60';
-      }
-      if (score >= 170) {
-        return 'text-emerald-300 font-semibold';
-      }
-      return 'text-slate-200 font-medium';
+    function getMemberBaseAvg(memberId, memberName) {
+      const found = members.find(m => m.id === memberId || m.name === memberName);
+      return found && found.initialAvg ? parseInt(found.initialAvg, 10) : 180;
     }
 
-    function getBadgeClassForScore(scoreVal) {
+    function getScoreColor(val, baseAvg = 180) {
+      const score = parseInt(val, 10) || 0;
+      const isUnderAvg = score > 0 && score < baseAvg;
+      const borderClass = isUnderAvg ? 'border-2 border-blue-500 bg-blue-500/10 shadow-[0_0_8px_rgba(59,130,246,0.3)]' : 'border border-dark-border/80';
+
+      if (score === 300) {
+        // 300 Perfect Game
+        return `text-red-500 font-black glow-gold border-amber-500`;
+      }
+      if (score >= 200) {
+        // 200+ Score: Bold Red text, blue border if under baseAvg (e.g. baseAvg 205)
+        return `text-red-500 font-extrabold ${borderClass}`;
+      }
+      if (isUnderAvg) {
+        // Below base average: Blue border with subtle blue tint
+        return `text-blue-300 font-semibold ${borderClass}`;
+      }
+      if (score >= 170) {
+        return `text-emerald-300 font-semibold ${borderClass}`;
+      }
+      return `text-slate-200 font-medium ${borderClass}`;
+    }
+
+    function getBadgeClassForScore(scoreVal, baseAvg = 180) {
       const num = parseInt(scoreVal, 10) || 0;
+      const isUnderAvg = num > 0 && num < baseAvg;
+      const borderClass = isUnderAvg ? 'border-2 border-blue-500' : 'border border-dark-border';
+
       if (num === 300) {
         return 'bg-amber-500/20 text-red-500 font-black border border-amber-500 shadow-sm';
       }
       if (num >= 200) {
-        return 'bg-red-500/20 text-red-400 font-extrabold border border-red-500/50';
+        return `bg-red-500/20 text-red-400 font-extrabold ${borderClass}`;
       }
-      return 'bg-dark-bg text-slate-300 border border-dark-border';
+      if (isUnderAvg) {
+        return `bg-blue-500/15 text-blue-300 font-bold ${borderClass}`;
+      }
+      return `bg-dark-bg text-slate-300 ${borderClass}`;
     }
 
     function populateLeaderboardSelect() {
@@ -1067,7 +1085,7 @@
 
       if (matchHistory && matchHistory.length > 0) {
         options += `<optgroup label="지난 정기전 기록">`;
-        matchHistory.forEach(h => {
+        sortedHistory.forEach(h => {
           options += `<option value="${h.id}">🏆 [${h.date}] ${escapeHtml(h.title)}</option>`;
         });
         options += `</optgroup>`;
@@ -1194,20 +1212,24 @@
         else if (rank === 2) rankBadge = `<span class="w-6 h-6 rounded-full bg-slate-300 text-black inline-flex items-center justify-center font-black text-xs font-outfit">2</span>`;
         else if (rank === 3) rankBadge = `<span class="w-6 h-6 rounded-full bg-amber-700 text-white inline-flex items-center justify-center font-black text-xs font-outfit">3</span>`;
 
+        const baseAvg = getMemberBaseAvg(st.memberId, st.name);
         const highClass = st.high >= 200 ? 'text-red-400 font-extrabold' : 'text-slate-400';
 
         tableRows += `
           <tr class="hover:bg-dark-card2/50 transition">
             <td class="py-3 px-4 text-center">${rankBadge}</td>
             <td class="py-3 px-4 font-bold text-white">
-              <button onclick="openMemberHistoryModal('${st.memberId}')" class="text-left hover:underline text-cyan-300 font-bold flex items-center gap-1.5 group" title="역대 경기 전적 조회">
-                <span>${escapeHtml(st.name)}</span>
-                <i class="ph-bold ph-chart-bar text-xs opacity-50 group-hover:opacity-100 transition"></i>
-              </button>
+              <div class="flex items-center gap-2">
+                <button onclick="openMemberHistoryModal('${st.memberId}')" class="text-left hover:underline text-cyan-300 font-bold flex items-center gap-1.5 group" title="역대 경기 전적 조회">
+                  <span>${escapeHtml(st.name)}</span>
+                  <i class="ph-bold ph-chart-bar text-xs opacity-50 group-hover:opacity-100 transition"></i>
+                </button>
+                <span class="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-dark-card border border-dark-border text-slate-400 font-outfit" title="기준 에버리지">기준 ${baseAvg}</span>
+              </div>
             </td>
             <td class="py-3 px-3 text-center text-xs">
               ${st.scores.map(s => {
-                const badgeStyle = getBadgeClassForScore(s);
+                const badgeStyle = getBadgeClassForScore(s, baseAvg);
                 return `<span class="px-2 py-0.5 rounded mr-1 font-outfit ${badgeStyle}">${s}</span>`;
               }).join('')}
             </td>
@@ -1514,7 +1536,7 @@
       let highestScore = 0;
       let firstPlaceWins = 0;
 
-      matchHistory.forEach(match => {
+      sortedHistory.forEach(match => {
         const participant = match.participants.find(p => p.memberId === memberId || p.name === member.name);
         if (participant) {
           const sortedParticipants = [...match.participants].sort((a, b) => {
@@ -1790,6 +1812,7 @@
       currentMatch.participants.forEach((p, pIdx) => {
         while (p.scores.length < currentMatch.gamesCount) p.scores.push(0);
 
+        const baseAvg = getMemberBaseAvg(p.memberId, p.name);
         const totalScore = p.scores.reduce((sum, val) => sum + (parseInt(val, 10) || 0), 0);
         const average = (totalScore / (currentMatch.gamesCount || 1)).toFixed(1);
         const highScore = Math.max(...p.scores.map(v => parseInt(v, 10) || 0), 0);
@@ -1799,10 +1822,13 @@
           <tr id="participant-row-${pIdx}" class="hover:bg-dark-card2/50 transition border-b border-dark-border/40">
             <td class="py-3 px-3 text-center text-xs font-semibold text-slate-400 font-outfit">${pIdx + 1}</td>
             <td class="py-3 px-4 font-medium text-white">
-              <button onclick="openMemberHistoryModal('${p.memberId}')" class="text-left font-bold text-sm text-cyan-300 hover:text-cyan-200 hover:underline flex items-center gap-1.5 group" title="역대 경기 전적 조회">
-                <span>${escapeHtml(p.name)}</span>
-                <i class="ph-bold ph-chart-bar text-xs opacity-50 group-hover:opacity-100 transition"></i>
-              </button>
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <button onclick="openMemberHistoryModal('${p.memberId}')" class="text-left font-bold text-sm text-cyan-300 hover:text-cyan-200 hover:underline flex items-center gap-1 group" title="역대 경기 전적 조회">
+                  <span>${escapeHtml(p.name)}</span>
+                  <i class="ph-bold ph-chart-bar text-xs opacity-50 group-hover:opacity-100 transition"></i>
+                </button>
+                <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-dark-bg border border-dark-border text-cyan-300 font-outfit whitespace-nowrap" title="기준 에버리지">기준 ${baseAvg}</span>
+              </div>
             </td>
             <td class="p-0">
               <div class="flex items-center">
@@ -1817,7 +1843,7 @@
                       onkeydown="handleScoreKeyNavigation(event, ${pIdx}, ${gIdx})"
                       onclick="handleScoreInputClick(event)"
                       onfocus="this.select()"
-                      class="w-full max-w-[68px] ${adminActive ? 'bg-dark-bg cursor-text' : 'bg-dark-card2/40 cursor-not-allowed opacity-85'} border border-dark-border/80 rounded-lg text-center py-1.5 text-sm font-bold text-white focus:outline-none focus:border-cyan-400 transition font-outfit ${getScoreColor(score)}" />
+                      class="w-full max-w-[68px] ${adminActive ? 'cursor-text' : 'bg-dark-card2/40 cursor-not-allowed opacity-85'} rounded-lg text-center py-1.5 text-sm font-bold focus:outline-none transition font-outfit ${getScoreColor(score, baseAvg)}" />
                   </div>
                 `).join('')}
               </div>
@@ -1873,9 +1899,11 @@
         saveCurrentMatchState();
       }
 
-      event.target.className = `w-full max-w-[68px] bg-dark-bg border border-dark-border/80 rounded-lg text-center py-1.5 text-sm font-bold text-white focus:outline-none focus:border-cyan-400 transition font-outfit ${getScoreColor(num)}`;
-
       const p = currentMatch.participants[pIdx];
+      const baseAvg = getMemberBaseAvg(p.memberId, p.name);
+
+      event.target.className = `w-full max-w-[68px] rounded-lg text-center py-1.5 text-sm font-bold focus:outline-none transition font-outfit ${getScoreColor(num, baseAvg)}`;
+
       const totalScore = p.scores.reduce((sum, val) => sum + (parseInt(val, 10) || 0), 0);
       const average = (totalScore / (currentMatch.gamesCount || 1)).toFixed(1);
       const highScore = Math.max(...p.scores.map(v => parseInt(v, 10) || 0), 0);
@@ -2130,7 +2158,7 @@
       }
 
       let html = '';
-      matchHistory.forEach((hist) => {
+      sortedHistory.forEach((hist) => {
         const sortedP = [...hist.participants].sort((a, b) => {
           const totA = a.scores.reduce((s, v) => s + (parseInt(v, 10) || 0), 0);
           const totB = b.scores.reduce((s, v) => s + (parseInt(v, 10) || 0), 0);
