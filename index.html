@@ -1834,7 +1834,7 @@
               <div class="flex items-center">
                 ${p.scores.map((score, gIdx) => `
                   <div class="p-1.5 flex-1 border-l border-dark-border/50 text-center">
-                    <input type="number" min="0" max="300"
+                    <input type="number" inputmode="numeric" min="0" max="300"
                       id="score-input-${pIdx}-${gIdx}"
                       value="${score > 0 ? score : ''}"
                       placeholder="0"
@@ -1876,7 +1876,11 @@
     }
 
     function handleLiveScoreInput(event, pIdx, gIdx) {
-      if (!isAdmin()) return;
+      if (!isAdmin()) {
+        event.target.blur();
+        requireAdmin('점수 입력 및 수정');
+        return;
+      }
 
       let rawVal = event.target.value.trim();
       let num = 0;
