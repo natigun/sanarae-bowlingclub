@@ -99,7 +99,6 @@
           <h1 class="font-outfit font-black text-base sm:text-xl tracking-wider text-white flex items-center gap-2">
             <span>SANARAE</span>
             <span class="text-cyan-400">BOWLING SCORE CARD</span>
-            <span class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">스크래치</span>
           </h1>
           <p class="text-xs text-slate-400 hidden sm:block">사나래 볼링 클럽 순수 득점 & 에버리지 매니저</p>
         </div>
@@ -1085,7 +1084,7 @@
 
       if (matchHistory && matchHistory.length > 0) {
         options += `<optgroup label="지난 정기전 기록">`;
-        sortedHistory.forEach(h => {
+        [...matchHistory].sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(h => {
           options += `<option value="${h.id}">🏆 [${h.date}] ${escapeHtml(h.title)}</option>`;
         });
         options += `</optgroup>`;
@@ -1224,7 +1223,7 @@
                   <span>${escapeHtml(st.name)}</span>
                   <i class="ph-bold ph-chart-bar text-xs opacity-50 group-hover:opacity-100 transition"></i>
                 </button>
-                <span class="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-dark-card border border-dark-border text-slate-400 font-outfit" title="기준 에버리지">기준 ${baseAvg}</span>
+                <span class="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-dark-card border border-dark-border text-slate-400 font-outfit" title="기준 에버리지">에버러지 ${baseAvg}</span>
               </div>
             </td>
             <td class="py-3 px-3 text-center text-xs">
@@ -1526,7 +1525,7 @@
         note: ''
       };
 
-      document.getElementById('histModalMemberName').innerText = member.name;
+      document.getElementById('histModalMemberName').innerHTML = `${escapeHtml(member.name)} <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-dark-card border border-dark-border text-cyan-300 font-outfit align-middle">에버러지 ${member.initialAvg || 180}</span>`;
       document.getElementById('histModalMemberGender').innerText = member.gender || '일반';
       document.getElementById('histModalMemberNote').innerText = `${member.note || '사나래 정회원'} · 기준 에버리지: ${member.initialAvg || '-'}`;
 
@@ -1536,7 +1535,7 @@
       let highestScore = 0;
       let firstPlaceWins = 0;
 
-      sortedHistory.forEach(match => {
+      [...matchHistory].sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(match => {
         const participant = match.participants.find(p => p.memberId === memberId || p.name === member.name);
         if (participant) {
           const sortedParticipants = [...match.participants].sort((a, b) => {
@@ -1612,6 +1611,7 @@
           }
 
           const highClass = m.matchHigh >= 200 ? 'text-red-400 font-extrabold' : 'text-slate-400';
+          const memberBaseAvg = getMemberBaseAvg(memberId, member.name);
 
           rows += `
             <tr class="hover:bg-dark-card2/50 transition">
@@ -1623,7 +1623,7 @@
               <td class="py-2.5 px-3 text-center">
                 <div class="flex items-center justify-center gap-1">
                   ${m.scores.map(s => {
-                    const badgeClass = getBadgeClassForScore(s);
+                    const badgeClass = getBadgeClassForScore(s, memberBaseAvg);
                     return `<span class="px-1.5 py-0.5 rounded text-[11px] font-outfit ${badgeClass}">${s}</span>`;
                   }).join('')}
                 </div>
@@ -1827,7 +1827,7 @@
                   <span>${escapeHtml(p.name)}</span>
                   <i class="ph-bold ph-chart-bar text-xs opacity-50 group-hover:opacity-100 transition"></i>
                 </button>
-                <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-dark-bg border border-dark-border text-cyan-300 font-outfit whitespace-nowrap" title="기준 에버리지">기준 ${baseAvg}</span>
+                <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-dark-bg border border-dark-border text-cyan-300 font-outfit whitespace-nowrap" title="기준 에버리지">에버러지 ${baseAvg}</span>
               </div>
             </td>
             <td class="p-0">
@@ -2158,7 +2158,7 @@
       }
 
       let html = '';
-      sortedHistory.forEach((hist) => {
+      [...matchHistory].sort((a, b) => new Date(b.date) - new Date(a.date)).forEach((hist) => {
         const sortedP = [...hist.participants].sort((a, b) => {
           const totA = a.scores.reduce((s, v) => s + (parseInt(v, 10) || 0), 0);
           const totB = b.scores.reduce((s, v) => s + (parseInt(v, 10) || 0), 0);
