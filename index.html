@@ -1,0 +1,1399 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>볼링 클럽 점수 관리자 (StrikeMaster)</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Phosphor Icons -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <!-- Google Fonts Inter & Noto Sans KR -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <!-- Tailwind Custom Config -->
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Noto Sans KR"', 'sans-serif'],
+            outfit: ['"Outfit"', 'sans-serif']
+          },
+          colors: {
+            brand: {
+              500: '#0284c7',
+              neon: '#06b6d4',
+              accent: '#f59e0b',
+              strike: '#ef4444'
+            },
+            dark: {
+              bg: '#0B0F19',
+              card: '#131C2E',
+              card2: '#1E293B',
+              border: '#24324D'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #0B0F19;
+      color: #E2E8F0;
+      font-family: 'Noto Sans KR', sans-serif;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #0B0F19;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #24324D;
+      border-radius: 9999px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #0284c7;
+    }
+    .glow-cyan {
+      box-shadow: 0 0 15px rgba(6, 182, 212, 0.25);
+    }
+    .glow-amber {
+      box-shadow: 0 0 15px rgba(245, 158, 11, 0.25);
+    }
+    /* Number input spin removal */
+    input[type=number]::-webkit-inner-spin-button, 
+    input[type=number]::-webkit-outer-spin-button { 
+      -webkit-appearance: none; 
+      margin: 0; 
+    }
+    input[type=number] {
+      -moz-appearance: textfield;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col custom-scrollbar select-none md:select-text">
+
+  <!-- Top Navigation Bar -->
+  <header class="sticky top-0 z-40 bg-dark-card/90 backdrop-blur-md border-b border-dark-border px-4 py-3">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/20 text-white text-2xl font-bold">
+          <i class="ph-bold ph-bowling-pin"></i>
+        </div>
+        <div>
+          <h1 class="font-outfit font-extrabold text-lg sm:text-xl tracking-wide text-white flex items-center gap-1.5">
+            STRIKE<span class="text-cyan-400">MASTER</span>
+            <span class="text-xs font-medium px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 ml-1">스크래치</span>
+          </h1>
+          <p class="text-xs text-slate-400 hidden sm:block">볼링 클럽 순수 득점 & 에버리지 매니저</p>
+        </div>
+      </div>
+
+      <!-- Quick Action Buttons -->
+      <div class="flex items-center gap-2">
+        <button id="btnQuickBackup" onclick="exportDataToJSON()" title="데이터 백업" class="p-2 rounded-lg bg-dark-card2 border border-dark-border hover:border-cyan-500/50 text-slate-300 hover:text-cyan-400 text-sm flex items-center gap-1.5 transition">
+          <i class="ph-bold ph-download-simple text-base"></i>
+          <span class="hidden md:inline text-xs">백업</span>
+        </button>
+        <button id="btnResetModal" onclick="confirmResetData()" title="데이터 초기화" class="p-2 rounded-lg bg-dark-card2 border border-dark-border hover:border-red-500/50 text-slate-400 hover:text-red-400 text-sm transition">
+          <i class="ph-bold ph-arrow-counter-clockwise text-base"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-5 flex flex-col gap-5">
+    
+    <!-- Tab Navigation -->
+    <nav class="flex overflow-x-auto gap-2 border-b border-dark-border pb-2 custom-scrollbar">
+      <button onclick="switchTab('match')" id="tabBtn-match" class="tab-btn px-4 py-2.5 rounded-xl font-medium text-sm flex items-center gap-2 transition whitespace-nowrap bg-cyan-500 text-white shadow-lg shadow-cyan-500/20">
+        <i class="ph-bold ph-game-controller text-lg"></i>
+        <span>정기전 점수 입력</span>
+      </button>
+      <button onclick="switchTab('leaderboard')" id="tabBtn-leaderboard" class="tab-btn px-4 py-2.5 rounded-xl font-medium text-sm flex items-center gap-2 transition whitespace-nowrap text-slate-400 hover:text-white hover:bg-dark-card2">
+        <i class="ph-bold ph-trophy text-lg"></i>
+        <span>정기전 순위표</span>
+      </button>
+      <button onclick="switchTab('members')" id="tabBtn-members" class="tab-btn px-4 py-2.5 rounded-xl font-medium text-sm flex items-center gap-2 transition whitespace-nowrap text-slate-400 hover:text-white hover:bg-dark-card2">
+        <i class="ph-bold ph-users text-lg"></i>
+        <span>회원 & 누적 통계</span>
+      </button>
+      <button onclick="switchTab('history')" id="tabBtn-history" class="tab-btn px-4 py-2.5 rounded-xl font-medium text-sm flex items-center gap-2 transition whitespace-nowrap text-slate-400 hover:text-white hover:bg-dark-card2">
+        <i class="ph-bold ph-clock-counter-clockwise text-lg"></i>
+        <span>지난 정기전 기록</span>
+      </button>
+    </nav>
+
+    <!-- 1. 정기전 점수 입력 탭 -->
+    <section id="tab-match" class="tab-content flex flex-col gap-4">
+      <!-- Session Settings Card -->
+      <div class="bg-dark-card border border-dark-border rounded-2xl p-4 sm:p-5 shadow-sm">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 flex-1">
+            <div>
+              <label class="block text-xs font-semibold text-slate-400 mb-1">정기전 날짜</label>
+              <input type="date" id="matchDate" class="w-full bg-dark-card2 border border-dark-border rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-500">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-400 mb-1">정기전 회차 / 제목</label>
+              <input type="text" id="matchTitle" placeholder="예: 2026년 9월 정기전" class="w-full bg-dark-card2 border border-dark-border rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-500">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-400 mb-1">진행 게임 수 (1~6)</label>
+              <select id="matchGamesCount" onchange="changeGamesCount(this.value)" class="w-full bg-dark-card2 border border-dark-border rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-500">
+                <option value="2">2 게임</option>
+                <option value="3" selected>3 게임 (표준)</option>
+                <option value="4">4 게임</option>
+                <option value="5">5 게임</option>
+                <option value="6">6 게임</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2 self-end md:self-center">
+            <button onclick="openSelectMembersModal()" class="px-3.5 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-semibold flex items-center gap-1.5 shadow-md shadow-cyan-600/30 transition">
+              <i class="ph-bold ph-user-plus text-base"></i>
+              참석 회원 추가
+            </button>
+            <button onclick="saveCurrentMatch()" class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center gap-1.5 shadow-md shadow-emerald-600/30 transition">
+              <i class="ph-bold ph-floppy-disk text-base"></i>
+              경기 완료 & 저장
+            </button>
+          </div>
+        </div>
+
+        <!-- Mode & Info banner -->
+        <div class="mt-4 pt-3 border-t border-dark-border/60 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-400">
+          <div class="flex items-center gap-3">
+            <span class="flex items-center gap-1.5">
+              <span class="w-2.5 h-2.5 rounded-full bg-cyan-400 inline-block animate-pulse"></span>
+              현재 참가: <strong id="participantCount" class="text-white ml-0.5">0명</strong>
+            </span>
+            <span class="text-slate-500">•</span>
+            <span class="text-cyan-300 font-medium">순수 득점(스크래치) 방식 적용</span>
+          </div>
+          <div class="text-slate-400">
+            * 300점 만점 기준 / 점수 입력 시 총점·에버리지·하이 스코어가 실시간 반영됩니다.
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Score Board Table -->
+      <div class="bg-dark-card border border-dark-border rounded-2xl overflow-hidden shadow-lg">
+        <div class="overflow-x-auto custom-scrollbar">
+          <table class="w-full text-left border-collapse min-w-[620px]">
+            <thead>
+              <tr class="bg-dark-card2/80 text-xs font-bold text-slate-300 border-b border-dark-border tracking-wide uppercase">
+                <th class="py-3 px-3 w-12 text-center">No</th>
+                <th class="py-3 px-4 min-w-[130px]">회원명</th>
+                <th id="thGameHeaders" class="p-0">
+                  <!-- Dynamically Rendered Game Columns -->
+                </th>
+                <th class="py-3 px-4 w-24 text-center text-amber-400 bg-amber-500/10 font-bold">총점</th>
+                <th class="py-3 px-3 w-20 text-center text-cyan-300 font-semibold">에버리지</th>
+                <th class="py-3 px-3 w-16 text-center text-slate-400 font-medium">하이</th>
+                <th class="py-3 px-2 w-14 text-center">관리</th>
+              </tr>
+            </thead>
+            <tbody id="scoreTableBody" class="divide-y divide-dark-border/60 text-sm">
+              <!-- Rendered via JS -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Empty State if no members -->
+        <div id="emptyMatchState" class="p-12 flex flex-col items-center justify-center text-center">
+          <div class="w-16 h-16 rounded-full bg-dark-card2 flex items-center justify-center text-slate-500 text-3xl mb-3">
+            <i class="ph-duotone ph-bowling-ball"></i>
+          </div>
+          <p class="text-slate-300 font-medium text-base mb-1">정기전에 참가할 회원을 등록해주세요</p>
+          <p class="text-slate-500 text-xs max-w-sm mb-4">우측 상단의 [참석 회원 추가] 버튼을 눌러 오늘 경기에 참여하는 회원들을 선택하세요.</p>
+          <button onclick="openSelectMembersModal()" class="px-4 py-2 bg-dark-card2 border border-cyan-500/40 text-cyan-400 rounded-xl text-xs font-semibold hover:bg-cyan-500/10 transition">
+            회원 선택창 열기
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. 실시간 순위표 탭 -->
+    <section id="tab-leaderboard" class="tab-content hidden flex flex-col gap-4">
+      <div class="bg-dark-card border border-dark-border rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <h2 class="text-base font-bold text-white flex items-center gap-2">
+            <i class="ph-fill ph-trophy text-amber-400"></i>
+            <span id="leaderboardTitleDisplay">정기전 순위표</span>
+          </h2>
+          <p class="text-xs text-slate-400">총점 기준 실시간 순위표입니다 (동점 시 하이 스코어 우선).</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="copyLeaderboardText()" class="px-3 py-2 rounded-xl bg-dark-card2 border border-dark-border hover:border-cyan-400 text-slate-200 text-xs flex items-center gap-1.5 transition">
+            <i class="ph-bold ph-copy text-cyan-400"></i>
+            <span>결과 텍스트 복사</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Leaderboard Podium / Top 3 highlight -->
+      <div id="podiumContainer" class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <!-- Podium Top 3 Rendered Here -->
+      </div>
+
+      <!-- Full Standings Table -->
+      <div class="bg-dark-card border border-dark-border rounded-2xl overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse min-w-[580px]">
+            <thead>
+              <tr class="bg-dark-card2/80 text-xs font-bold text-slate-300 border-b border-dark-border">
+                <th class="py-3 px-4 w-16 text-center">순위</th>
+                <th class="py-3 px-4">회원</th>
+                <th class="py-3 px-3 text-center">게임 스코어 상세</th>
+                <th class="py-3 px-4 text-center text-amber-400 font-bold bg-amber-500/10">총점</th>
+                <th class="py-3 px-3 text-center text-cyan-300 font-semibold">에버리지</th>
+                <th class="py-3 px-3 text-center text-slate-400">하이</th>
+              </tr>
+            </thead>
+            <tbody id="leaderboardTableBody" class="divide-y divide-dark-border/60 text-sm">
+              <!-- Rendered via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. 회원 관리 & 누적 통계 탭 -->
+    <section id="tab-members" class="tab-content hidden flex flex-col gap-4">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <div>
+          <h2 class="text-lg font-bold text-white flex items-center gap-2">
+            <i class="ph-bold ph-users-three text-cyan-400"></i>
+            클럽 회원 명단 및 누적 통계
+          </h2>
+          <p class="text-xs text-slate-400">회원 등록 및 역대 정기전 누적 에버리지 현황</p>
+        </div>
+        <div class="flex items-center gap-2 w-full sm:w-auto">
+          <div class="relative flex-1 sm:w-64">
+            <i class="ph-bold ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+            <input type="text" id="memberSearchInput" oninput="renderMembersList()" placeholder="회원 이름 검색..." class="w-full bg-dark-card border border-dark-border rounded-xl pl-9 pr-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500">
+          </div>
+          <button onclick="openMemberModal()" class="px-3.5 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-semibold flex items-center gap-1.5 shadow-md shadow-cyan-600/30 whitespace-nowrap">
+            <i class="ph-bold ph-plus text-sm"></i>
+            새 회원 등록
+          </button>
+        </div>
+      </div>
+
+      <!-- Club Summary Stats Cards -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div class="bg-dark-card border border-dark-border p-4 rounded-2xl flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center text-xl">
+            <i class="ph-bold ph-user-check"></i>
+          </div>
+          <div>
+            <div class="text-xs text-slate-400">총 회원수</div>
+            <div id="statTotalMembers" class="text-lg font-bold text-white">0명</div>
+          </div>
+        </div>
+        <div class="bg-dark-card border border-dark-border p-4 rounded-2xl flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center text-xl">
+            <i class="ph-bold ph-calendar-check"></i>
+          </div>
+          <div>
+            <div class="text-xs text-slate-400">누적 정기전</div>
+            <div id="statTotalMatches" class="text-lg font-bold text-white">0회</div>
+          </div>
+        </div>
+        <div class="bg-dark-card border border-dark-border p-4 rounded-2xl flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center text-xl">
+            <i class="ph-bold ph-chart-line-up"></i>
+          </div>
+          <div>
+            <div class="text-xs text-slate-400">클럽 전체 에버리지</div>
+            <div id="statClubAverage" class="text-lg font-bold text-white">0.0</div>
+          </div>
+        </div>
+        <div class="bg-dark-card border border-dark-border p-4 rounded-2xl flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-red-500/10 text-red-400 flex items-center justify-center text-xl">
+            <i class="ph-bold ph-fire"></i>
+          </div>
+          <div>
+            <div class="text-xs text-slate-400">클럽 하이스코어</div>
+            <div id="statClubHighScore" class="text-lg font-bold text-white">0점</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Members Table -->
+      <div class="bg-dark-card border border-dark-border rounded-2xl overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse min-w-[580px]">
+            <thead>
+              <tr class="bg-dark-card2/80 text-xs font-bold text-slate-300 border-b border-dark-border">
+                <th class="py-3 px-4">회원</th>
+                <th class="py-3 px-3 text-center">누적 경기수</th>
+                <th class="py-3 px-3 text-center text-cyan-300 font-bold">누적 에버리지</th>
+                <th class="py-3 px-3 text-center text-amber-400 font-bold">최고 점수</th>
+                <th class="py-3 px-4 text-center">관리</th>
+              </tr>
+            </thead>
+            <tbody id="membersTableBody" class="divide-y divide-dark-border/60 text-sm">
+              <!-- Rendered via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. 지난 정기전 기록 탭 -->
+    <section id="tab-history" class="tab-content hidden flex flex-col gap-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-lg font-bold text-white flex items-center gap-2">
+            <i class="ph-bold ph-calendar text-cyan-400"></i>
+            정기전 히스토리
+          </h2>
+          <p class="text-xs text-slate-400">저장된 역대 정기전 결과 조회 및 엑셀(CSV) 저장</p>
+        </div>
+      </div>
+
+      <div id="historyListContainer" class="flex flex-col gap-3">
+        <!-- Rendered via JS -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- MODAL: 회원 추가 / 수정 -->
+  <div id="memberModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-dark-card border border-dark-border rounded-2xl w-full max-w-md overflow-hidden shadow-2xl">
+      <div class="p-5 border-b border-dark-border flex items-center justify-between">
+        <h3 id="memberModalTitle" class="text-base font-bold text-white flex items-center gap-2">
+          <i class="ph-bold ph-user-plus text-cyan-400"></i>
+          신규 회원 등록
+        </h3>
+        <button onclick="closeMemberModal()" class="text-slate-400 hover:text-white text-xl">
+          <i class="ph-bold ph-x"></i>
+        </button>
+      </div>
+      <form id="memberForm" onsubmit="handleSaveMember(event)" class="p-5 flex flex-col gap-4">
+        <input type="hidden" id="editMemberId">
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">회원 이름 <span class="text-red-400">*</span></label>
+            <input type="text" id="mName" required placeholder="예: 김동호" class="w-full bg-dark-card2 border border-dark-border rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-500">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">구분</label>
+            <select id="mGender" class="w-full bg-dark-card2 border border-dark-border rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-500">
+              <option value="일반">일반</option>
+              <option value="여성">여성</option>
+              <option value="시니어">시니어</option>
+              <option value="학생">학생</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">초기 에버리지</label>
+          <input type="number" id="mInitialAvg" value="160" min="0" max="300" class="w-full bg-dark-card2 border border-dark-border rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-500">
+          <span class="text-[11px] text-slate-500">가입 당시 기준 또는 최근 개인 에버리지</span>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">메모 / 특이사항</label>
+          <input type="text" id="mNote" placeholder="예: 락커 12번, 연락처 등" class="w-full bg-dark-card2 border border-dark-border rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-500">
+        </div>
+
+        <div class="mt-2 flex items-center justify-end gap-2">
+          <button type="button" onclick="closeMemberModal()" class="px-4 py-2 rounded-xl text-xs font-medium text-slate-400 hover:text-white bg-dark-card2 border border-dark-border">취소</button>
+          <button type="submit" class="px-5 py-2 rounded-xl text-xs font-bold text-white bg-cyan-600 hover:bg-cyan-500 shadow-md shadow-cyan-600/30">저장하기</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: 참가 회원 선택 모달 -->
+  <div id="selectMembersModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-dark-card border border-dark-border rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl flex flex-col max-h-[85vh]">
+      <div class="p-4 border-b border-dark-border flex items-center justify-between">
+        <div>
+          <h3 class="text-base font-bold text-white flex items-center gap-2">
+            <i class="ph-bold ph-check-square-offset text-cyan-400"></i>
+            정기전 참가자 선택
+          </h3>
+          <p class="text-xs text-slate-400">오늘 경기에 참여하는 회원들을 체크해주세요</p>
+        </div>
+        <button onclick="closeSelectMembersModal()" class="text-slate-400 hover:text-white text-xl">
+          <i class="ph-bold ph-x"></i>
+        </button>
+      </div>
+
+      <div class="p-3 bg-dark-card2/50 border-b border-dark-border flex items-center justify-between text-xs">
+        <button onclick="toggleSelectAllMembers(true)" class="text-cyan-400 hover:underline">전체 선택</button>
+        <span class="text-slate-500">|</span>
+        <button onclick="toggleSelectAllMembers(false)" class="text-slate-400 hover:underline">선택 해제</button>
+      </div>
+
+      <div id="selectMemberList" class="p-4 overflow-y-auto custom-scrollbar flex flex-col gap-2 flex-1">
+        <!-- Checkbox list of members -->
+      </div>
+
+      <div class="p-4 border-t border-dark-border bg-dark-card2/80 flex items-center justify-end gap-2">
+        <button onclick="closeSelectMembersModal()" class="px-4 py-2 rounded-xl text-xs font-medium text-slate-400 bg-dark-card border border-dark-border">닫기</button>
+        <button onclick="applySelectedMembers()" class="px-5 py-2 rounded-xl text-xs font-bold text-white bg-cyan-600 hover:bg-cyan-500 shadow-md shadow-cyan-600/30">적용하기</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: 정기전 상세 뷰어 모달 -->
+  <div id="matchDetailModal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden items-center justify-center p-3 sm:p-4">
+    <div class="bg-dark-card border border-dark-border rounded-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden shadow-2xl">
+      <div class="p-4 border-b border-dark-border flex items-center justify-between bg-dark-card2/60">
+        <div>
+          <h3 id="detailModalTitle" class="text-base font-bold text-white">정기전 결과 상세</h3>
+          <p id="detailModalSubtitle" class="text-xs text-slate-400">2026-09-24</p>
+        </div>
+        <button onclick="closeDetailModal()" class="text-slate-400 hover:text-white text-xl">
+          <i class="ph-bold ph-x"></i>
+        </button>
+      </div>
+      <div id="detailModalContent" class="p-4 overflow-y-auto custom-scrollbar flex-1">
+        <!-- Rendered details -->
+      </div>
+      <div class="p-4 border-t border-dark-border bg-dark-card2/60 flex items-center justify-between">
+        <button id="btnExportMatchCSV" class="px-3.5 py-2 rounded-xl bg-dark-card border border-dark-border text-xs text-slate-300 hover:text-white flex items-center gap-1.5 transition">
+          <i class="ph-bold ph-file-csv text-emerald-400"></i> CSV 다운로드
+        </button>
+        <button onclick="closeDetailModal()" class="px-4 py-2 rounded-xl bg-cyan-600 text-xs font-semibold text-white">확인</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Custom Toast Notification Container -->
+  <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <script>
+    /* StrikeMaster Bowling Club - Pure Scratch Score Engine */
+    const STORAGE_KEY_MEMBERS = 'strikemaster_members_scratch_v2';
+    const STORAGE_KEY_HISTORY = 'strikemaster_history_scratch_v2';
+    const STORAGE_KEY_CURRENT = 'strikemaster_current_match_scratch_v2';
+
+    // Initial default seed members without handicap
+    const DEFAULT_MEMBERS = [
+      { id: 'm1', name: '김동호', gender: '일반', initialAvg: 195, note: '락커 15번' },
+      { id: 'm2', name: '이수진', gender: '여성', initialAvg: 168, note: '총무' },
+      { id: 'm3', name: '박태현', gender: '일반', initialAvg: 204, note: '클럽장' },
+      { id: 'm4', name: '최미나', gender: '여성', initialAvg: 145, note: '신규 회원' },
+      { id: 'm5', name: '정민우', gender: '일반', initialAvg: 182, note: '락커 08번' },
+      { id: 'm6', name: '강준서', gender: '일반', initialAvg: 190, note: '정기전 개근' }
+    ];
+
+    // State Variables
+    let members = [];
+    let matchHistory = [];
+    let currentMatch = {
+      date: new Date().toISOString().split('T')[0],
+      title: '9월 4주차 정기전',
+      gamesCount: 3,
+      participants: [] // Array of { memberId, name, scores: [180, 200, 210] }
+    };
+
+    window.addEventListener('DOMContentLoaded', () => {
+      loadData();
+      initCurrentMatchUI();
+      renderScoreTable();
+      renderMembersList();
+      renderHistoryList();
+      updateClubStats();
+    });
+
+    function loadData() {
+      try {
+        const storedMembers = localStorage.getItem(STORAGE_KEY_MEMBERS);
+        if (storedMembers) {
+          members = JSON.parse(storedMembers);
+        } else {
+          members = DEFAULT_MEMBERS;
+          saveMembers();
+        }
+
+        const storedHistory = localStorage.getItem(STORAGE_KEY_HISTORY);
+        if (storedHistory) {
+          matchHistory = JSON.parse(storedHistory);
+        } else {
+          // Pre-populate 1 past match for rich experience
+          matchHistory = [
+            {
+              id: 'hist-sample-1',
+              date: '2026-09-17',
+              title: '9월 3주차 정기전',
+              gamesCount: 3,
+              participants: [
+                { memberId: 'm3', name: '박태현', scores: [215, 234, 198] },
+                { memberId: 'm1', name: '김동호', scores: [188, 205, 222] },
+                { memberId: 'm5', name: '정민우', scores: [180, 192, 175] },
+                { memberId: 'm2', name: '이수진', scores: [170, 165, 180] }
+              ]
+            }
+          ];
+          saveHistory();
+        }
+
+        const storedCurrent = localStorage.getItem(STORAGE_KEY_CURRENT);
+        if (storedCurrent) {
+          currentMatch = JSON.parse(storedCurrent);
+        } else {
+          // Default participant setup with first 4 members
+          currentMatch.participants = members.slice(0, 4).map(m => ({
+            memberId: m.id,
+            name: m.name,
+            scores: [180, 195, 200]
+          }));
+          saveCurrentMatchState();
+        }
+      } catch (err) {
+        console.error("데이터 로딩 실패:", err);
+      }
+    }
+
+    function saveMembers() {
+      localStorage.setItem(STORAGE_KEY_MEMBERS, JSON.stringify(members));
+      updateClubStats();
+    }
+
+    function saveHistory() {
+      localStorage.setItem(STORAGE_KEY_HISTORY, JSON.stringify(matchHistory));
+      updateClubStats();
+    }
+
+    function saveCurrentMatchState() {
+      localStorage.setItem(STORAGE_KEY_CURRENT, JSON.stringify(currentMatch));
+    }
+
+    function switchTab(tabName) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('bg-cyan-500', 'text-white', 'shadow-lg', 'shadow-cyan-500/20');
+        btn.classList.add('text-slate-400');
+      });
+
+      const selectedContent = document.getElementById(`tab-${tabName}`);
+      const selectedBtn = document.getElementById(`tabBtn-${tabName}`);
+
+      if (selectedContent) selectedContent.classList.remove('hidden');
+      if (selectedBtn) {
+        selectedBtn.classList.remove('text-slate-400');
+        selectedBtn.classList.add('bg-cyan-500', 'text-white', 'shadow-lg', 'shadow-cyan-500/20');
+      }
+
+      if (tabName === 'leaderboard') {
+        renderLeaderboard();
+      } else if (tabName === 'members') {
+        renderMembersList();
+      } else if (tabName === 'history') {
+        renderHistoryList();
+      }
+    }
+
+    function initCurrentMatchUI() {
+      document.getElementById('matchDate').value = currentMatch.date || new Date().toISOString().split('T')[0];
+      document.getElementById('matchTitle').value = currentMatch.title || '정기전';
+      document.getElementById('matchGamesCount').value = currentMatch.gamesCount || 3;
+
+      document.getElementById('matchDate').addEventListener('change', (e) => {
+        currentMatch.date = e.target.value;
+        saveCurrentMatchState();
+      });
+      document.getElementById('matchTitle').addEventListener('input', (e) => {
+        currentMatch.title = e.target.value;
+        saveCurrentMatchState();
+      });
+    }
+
+    function changeGamesCount(val) {
+      const count = parseInt(val, 10);
+      currentMatch.gamesCount = count;
+      currentMatch.participants.forEach(p => {
+        while (p.scores.length < count) p.scores.push(0);
+        if (p.scores.length > count) p.scores = p.scores.slice(0, count);
+      });
+      saveCurrentMatchState();
+      renderScoreTable();
+      showToast(`게임 수가 ${count}게임으로 조정되었습니다.`);
+    }
+
+    function renderScoreTable() {
+      const tableBody = document.getElementById('scoreTableBody');
+      const thHeaderContainer = document.getElementById('thGameHeaders');
+      const emptyState = document.getElementById('emptyMatchState');
+      const countEl = document.getElementById('participantCount');
+
+      countEl.innerText = `${currentMatch.participants.length}명`;
+
+      // Header Game Columns rendering
+      let headerHTML = `<div class="flex items-center">`;
+      for (let i = 1; i <= currentMatch.gamesCount; i++) {
+        headerHTML += `<div class="py-3 px-2 flex-1 text-center font-bold text-slate-300 border-l border-dark-border">${i}G</div>`;
+      }
+      headerHTML += `</div>`;
+      thHeaderContainer.innerHTML = headerHTML;
+
+      if (!currentMatch.participants || currentMatch.participants.length === 0) {
+        tableBody.innerHTML = '';
+        emptyState.classList.remove('hidden');
+        return;
+      }
+      emptyState.classList.add('hidden');
+
+      let rowsHTML = '';
+      currentMatch.participants.forEach((p, idx) => {
+        while (p.scores.length < currentMatch.gamesCount) p.scores.push(0);
+
+        const totalScore = p.scores.reduce((sum, val) => sum + (parseInt(val, 10) || 0), 0);
+        const average = (totalScore / (currentMatch.gamesCount || 1)).toFixed(1);
+        const highScore = Math.max(...p.scores, 0);
+
+        rowsHTML += `
+          <tr class="hover:bg-dark-card2/50 transition border-b border-dark-border/40">
+            <td class="py-3 px-3 text-center text-xs font-semibold text-slate-400">${idx + 1}</td>
+            <td class="py-3 px-4 font-medium text-white">
+              <span class="font-bold text-sm text-cyan-200">${escapeHtml(p.name)}</span>
+            </td>
+            <td class="p-0">
+              <div class="flex items-center">
+                ${p.scores.map((score, gIdx) => `
+                  <div class="p-1 flex-1 border-l border-dark-border/50 text-center">
+                    <input type="number" min="0" max="300" value="${score || ''}" placeholder="0"
+                      onfocus="this.select()"
+                      oninput="updateParticipantScore(${idx}, ${gIdx}, this.value)"
+                      class="w-full max-w-[65px] bg-dark-bg border border-dark-border/80 rounded-lg text-center py-1.5 text-sm font-bold text-white focus:outline-none focus:border-cyan-400 ${getScoreColor(score)}" />
+                  </div>
+                `).join('')}
+              </div>
+            </td>
+            <td class="py-3 px-4 text-center font-black text-base text-amber-400 bg-amber-500/5 font-outfit">
+              ${totalScore}
+            </td>
+            <td class="py-3 px-3 text-center text-xs text-cyan-300 font-semibold font-outfit">${average}</td>
+            <td class="py-3 px-3 text-center text-xs text-slate-400 font-medium font-outfit">${highScore > 0 ? highScore : '-'}</td>
+            <td class="py-3 px-2 text-center">
+              <button onclick="removeParticipant(${idx})" class="text-slate-500 hover:text-red-400 p-1.5 rounded-lg transition" title="경기에서 제외">
+                <i class="ph-bold ph-trash text-base"></i>
+              </button>
+            </td>
+          </tr>
+        `;
+      });
+
+      tableBody.innerHTML = rowsHTML;
+    }
+
+    function getScoreColor(val) {
+      const score = parseInt(val, 10);
+      if (score === 300) return 'text-red-400 glow-amber font-extrabold border-red-500/50';
+      if (score >= 200) return 'text-cyan-300 font-bold';
+      if (score >= 170) return 'text-emerald-300';
+      return 'text-slate-200';
+    }
+
+    function updateParticipantScore(pIdx, gIdx, val) {
+      let num = parseInt(val, 10);
+      if (isNaN(num)) num = 0;
+      if (num < 0) num = 0;
+      if (num > 300) num = 300;
+      currentMatch.participants[pIdx].scores[gIdx] = num;
+      saveCurrentMatchState();
+      renderScoreTable();
+    }
+
+    function removeParticipant(index) {
+      const removed = currentMatch.participants.splice(index, 1);
+      saveCurrentMatchState();
+      renderScoreTable();
+      if (removed.length > 0) {
+        showToast(`${removed[0].name} 회원이 경기에서 제외되었습니다.`);
+      }
+    }
+
+    function openSelectMembersModal() {
+      const container = document.getElementById('selectMemberList');
+      const currentIds = new Set(currentMatch.participants.map(p => p.memberId));
+
+      if (members.length === 0) {
+        container.innerHTML = `<div class="text-center py-6 text-slate-400 text-xs">등록된 회원이 없습니다. [회원 & 누적 통계] 탭에서 회원을 먼저 추가해주세요.</div>`;
+      } else {
+        container.innerHTML = members.map(m => {
+          const isChecked = currentIds.has(m.id);
+          return `
+            <label class="flex items-center justify-between p-2.5 rounded-xl border border-dark-border bg-dark-card2 hover:border-cyan-500/50 transition cursor-pointer">
+              <div class="flex items-center gap-3">
+                <input type="checkbox" value="${m.id}" ${isChecked ? 'checked' : ''} class="member-checkbox w-4 h-4 accent-cyan-500 rounded">
+                <div>
+                  <div class="text-sm font-semibold text-white flex items-center gap-1.5">
+                    ${escapeHtml(m.name)}
+                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-dark-bg text-slate-400 border border-dark-border">${escapeHtml(m.gender || '일반')}</span>
+                  </div>
+                  <div class="text-xs text-slate-400">${escapeHtml(m.note || '')}</div>
+                </div>
+              </div>
+              <div class="text-xs text-slate-400 text-right">
+                기준 AVG: <span class="text-cyan-300 font-bold font-outfit">${m.initialAvg || '-'}</span>
+              </div>
+            </label>
+          `;
+        }).join('');
+      }
+
+      const modal = document.getElementById('selectMembersModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeSelectMembersModal() {
+      const modal = document.getElementById('selectMembersModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function toggleSelectAllMembers(check) {
+      document.querySelectorAll('.member-checkbox').forEach(cb => cb.checked = check);
+    }
+
+    function applySelectedMembers() {
+      const checkedBoxes = document.querySelectorAll('.member-checkbox:checked');
+      const selectedIds = Array.from(checkedBoxes).map(cb => cb.value);
+
+      const existingMap = new Map();
+      currentMatch.participants.forEach(p => existingMap.set(p.memberId, p));
+
+      const newParticipants = [];
+      selectedIds.forEach(id => {
+        if (existingMap.has(id)) {
+          newParticipants.push(existingMap.get(id));
+        } else {
+          const m = members.find(mem => mem.id === id);
+          if (m) {
+            newParticipants.push({
+              memberId: m.id,
+              name: m.name,
+              scores: new Array(currentMatch.gamesCount).fill(0)
+            });
+          }
+        }
+      });
+
+      currentMatch.participants = newParticipants;
+      saveCurrentMatchState();
+      renderScoreTable();
+      closeSelectMembersModal();
+      showToast(`참가자 ${newParticipants.length}명이 설정되었습니다.`);
+    }
+
+    function saveCurrentMatch() {
+      if (currentMatch.participants.length === 0) {
+        showToast('저장할 참가 선수가 없습니다.', 'error');
+        return;
+      }
+
+      const hasScores = currentMatch.participants.some(p => p.scores.some(s => s > 0));
+      if (!hasScores) {
+        showToast('최소 한 개 이상의 게임 점수를 입력해주세요.', 'warning');
+        return;
+      }
+
+      const matchToSave = {
+        id: 'match-' + Date.now(),
+        date: document.getElementById('matchDate').value || currentMatch.date,
+        title: document.getElementById('matchTitle').value || currentMatch.title,
+        gamesCount: currentMatch.gamesCount,
+        participants: JSON.parse(JSON.stringify(currentMatch.participants)),
+        savedAt: new Date().toISOString()
+      };
+
+      matchHistory.unshift(matchToSave);
+      saveHistory();
+
+      showToast(`[${matchToSave.title}] 정기전 기록이 저장되었습니다!`);
+      switchTab('leaderboard');
+    }
+
+    function renderLeaderboard() {
+      const podiumEl = document.getElementById('podiumContainer');
+      const tableBody = document.getElementById('leaderboardTableBody');
+      const titleEl = document.getElementById('leaderboardTitleDisplay');
+
+      titleEl.innerText = `${document.getElementById('matchTitle').value || '정기전'} 실시간 순위`;
+
+      if (!currentMatch.participants || currentMatch.participants.length === 0) {
+        podiumEl.innerHTML = '';
+        tableBody.innerHTML = `<tr><td colspan="6" class="py-8 text-center text-slate-500 text-xs">현재 진행 중인 경기가 없거나 참가자가 없습니다.</td></tr>`;
+        return;
+      }
+
+      // Compute statistics for pure total score
+      const statsList = currentMatch.participants.map(p => {
+        const total = p.scores.reduce((s, v) => s + (parseInt(v, 10) || 0), 0);
+        const avg = (total / (currentMatch.gamesCount || 1)).toFixed(1);
+        const high = Math.max(...p.scores, 0);
+
+        return {
+          ...p,
+          total,
+          avg,
+          high
+        };
+      });
+
+      // Sort descending by total score, tiebreaker: high score
+      statsList.sort((a, b) => {
+        if (b.total !== a.total) return b.total - a.total;
+        return b.high - a.high;
+      });
+
+      // Render Top 3 Podium
+      let podiumHTML = '';
+      const top3 = statsList.slice(0, 3);
+      const podiumColors = [
+        { rank: '1위', badge: 'bg-amber-500 text-black', border: 'border-amber-500/40', icon: 'ph-trophy' },
+        { rank: '2위', badge: 'bg-slate-300 text-black', border: 'border-slate-300/40', icon: 'ph-medal' },
+        { rank: '3위', badge: 'bg-amber-700 text-white', border: 'border-amber-700/40', icon: 'ph-medal' }
+      ];
+
+      top3.forEach((item, i) => {
+        const conf = podiumColors[i];
+        podiumHTML += `
+          <div class="bg-dark-card border ${conf.border} p-4 rounded-2xl relative overflow-hidden flex flex-col justify-between shadow-lg">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-bold px-2.5 py-0.5 rounded-full ${conf.badge} flex items-center gap-1">
+                <i class="ph-bold ${conf.icon}"></i> ${conf.rank}
+              </span>
+              <span class="text-xs text-slate-400">하이 ${item.high}점</span>
+            </div>
+            <div>
+              <div class="text-lg font-bold text-white mb-0.5">${escapeHtml(item.name)}</div>
+              <div class="text-2xl font-black font-outfit text-amber-400 tracking-tight">
+                ${item.total}<span class="text-xs font-normal text-slate-400 ml-1">점</span>
+              </div>
+            </div>
+            <div class="mt-3 pt-2 border-t border-dark-border/60 flex items-center justify-between text-xs text-slate-400">
+              <span>게임수: <strong class="text-white">${currentMatch.gamesCount}G</strong></span>
+              <span>AVG: <strong class="text-cyan-300 font-outfit">${item.avg}</strong></span>
+            </div>
+          </div>
+        `;
+      });
+      podiumEl.innerHTML = podiumHTML;
+
+      // Full Table
+      let tableRows = '';
+      statsList.forEach((st, idx) => {
+        const rank = idx + 1;
+        let rankBadge = `<span class="font-bold text-slate-400">${rank}</span>`;
+        if (rank === 1) rankBadge = `<span class="w-6 h-6 rounded-full bg-amber-500 text-black inline-flex items-center justify-center font-black text-xs">1</span>`;
+        else if (rank === 2) rankBadge = `<span class="w-6 h-6 rounded-full bg-slate-300 text-black inline-flex items-center justify-center font-black text-xs">2</span>`;
+        else if (rank === 3) rankBadge = `<span class="w-6 h-6 rounded-full bg-amber-700 text-white inline-flex items-center justify-center font-black text-xs">3</span>`;
+
+        tableRows += `
+          <tr class="hover:bg-dark-card2/50 transition">
+            <td class="py-3 px-4 text-center">${rankBadge}</td>
+            <td class="py-3 px-4 font-bold text-white">${escapeHtml(st.name)}</td>
+            <td class="py-3 px-3 text-center text-xs text-slate-400">
+              ${st.scores.map(s => `<span class="px-1.5 py-0.5 rounded bg-dark-bg border border-dark-border mr-1 ${s >= 200 ? 'text-cyan-400 font-bold' : ''}">${s}</span>`).join('')}
+            </td>
+            <td class="py-3 px-4 text-center font-black text-base text-amber-400 bg-amber-500/5 font-outfit">${st.total}</td>
+            <td class="py-3 px-3 text-center text-xs font-semibold text-cyan-300 font-outfit">${st.avg}</td>
+            <td class="py-3 px-3 text-center text-xs text-slate-400 font-outfit">${st.high > 0 ? st.high : '-'}</td>
+          </tr>
+        `;
+      });
+
+      tableBody.innerHTML = tableRows;
+    }
+
+    function copyLeaderboardText() {
+      if (!currentMatch.participants || currentMatch.participants.length === 0) {
+        showToast('복사할 기록이 없습니다.', 'error');
+        return;
+      }
+
+      const title = document.getElementById('matchTitle').value || '정기전';
+      const date = document.getElementById('matchDate').value || '';
+      let text = `🎳 [${title}] 경기 결과 (${date})\n`;
+      text += `방식: 순수 득점 (스크래치)\n`;
+      text += `------------------------------\n`;
+
+      const statsList = currentMatch.participants.map(p => {
+        const total = p.scores.reduce((s, v) => s + (parseInt(v, 10) || 0), 0);
+        const avg = (total / (currentMatch.gamesCount || 1)).toFixed(1);
+        const high = Math.max(...p.scores, 0);
+        return { ...p, total, avg, high };
+      }).sort((a, b) => b.total - a.total);
+
+      statsList.forEach((item, idx) => {
+        text += `${idx + 1}위: ${item.name} - 총점 ${item.total}점 (AVG ${item.avg}, 하이 ${item.high})\n  └ 게임별: [${item.scores.join(', ')}]\n`;
+      });
+      text += `------------------------------\n* StrikeMaster 생성`;
+
+      const dummy = document.createElement('textarea');
+      dummy.value = text;
+      document.body.appendChild(dummy);
+      dummy.select();
+      document.execCommand('copy');
+      document.body.removeChild(dummy);
+
+      showToast('순위표 텍스트가 클립보드에 복사되었습니다!');
+    }
+
+    function renderMembersList() {
+      const tbody = document.getElementById('membersTableBody');
+      const searchKeyword = (document.getElementById('memberSearchInput').value || '').trim().toLowerCase();
+
+      const statsMap = computeMemberCumulativeStats();
+
+      const filtered = members.filter(m => {
+        if (!searchKeyword) return true;
+        return m.name.toLowerCase().includes(searchKeyword) || (m.note && m.note.toLowerCase().includes(searchKeyword));
+      });
+
+      filtered.sort((a, b) => {
+        const statA = statsMap.get(a.id) || { avg: a.initialAvg || 0 };
+        const statB = statsMap.get(b.id) || { avg: b.initialAvg || 0 };
+        return parseFloat(statB.avg) - parseFloat(statA.avg);
+      });
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="py-8 text-center text-slate-500 text-xs">일치하는 회원이 없습니다.</td></tr>`;
+        return;
+      }
+
+      let html = '';
+      filtered.forEach(m => {
+        const st = statsMap.get(m.id) || { games: 0, totalPins: 0, avg: m.initialAvg, highScore: 0 };
+        html += `
+          <tr class="hover:bg-dark-card2/50 transition">
+            <td class="py-3.5 px-4">
+              <div class="font-bold text-white text-sm flex items-center gap-2">
+                <span>${escapeHtml(m.name)}</span>
+                <span class="text-[10px] px-1.5 py-0.5 rounded bg-dark-card2 border border-dark-border text-slate-400">${escapeHtml(m.gender || '일반')}</span>
+              </div>
+              <div class="text-xs text-slate-400 mt-0.5">${escapeHtml(m.note || '-')}</div>
+            </td>
+            <td class="py-3 px-3 text-center text-xs text-slate-300 font-medium font-outfit">${st.games}G</td>
+            <td class="py-3 px-3 text-center font-bold text-sm text-cyan-300 font-outfit">${st.avg}</td>
+            <td class="py-3 px-3 text-center font-bold text-sm text-amber-400 font-outfit">${st.highScore || '-'}</td>
+            <td class="py-3 px-4 text-center">
+              <div class="flex items-center justify-center gap-1">
+                <button onclick="editMember('${m.id}')" class="p-1.5 text-slate-400 hover:text-cyan-400 hover:bg-dark-card2 rounded-lg transition" title="회원 수정">
+                  <i class="ph-bold ph-pencil-simple text-base"></i>
+                </button>
+                <button onclick="deleteMember('${m.id}')" class="p-1.5 text-slate-400 hover:text-red-400 hover:bg-dark-card2 rounded-lg transition" title="회원 삭제">
+                  <i class="ph-bold ph-trash text-base"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      });
+
+      tbody.innerHTML = html;
+    }
+
+    function computeMemberCumulativeStats() {
+      const statsMap = new Map();
+
+      members.forEach(m => {
+        statsMap.set(m.id, {
+          games: 0,
+          totalPins: 0,
+          avg: parseFloat(m.initialAvg) || 0,
+          highScore: 0
+        });
+      });
+
+      matchHistory.forEach(match => {
+        match.participants.forEach(p => {
+          if (!statsMap.has(p.memberId)) {
+            statsMap.set(p.memberId, { games: 0, totalPins: 0, avg: 0, highScore: 0 });
+          }
+          const item = statsMap.get(p.memberId);
+          p.scores.forEach(score => {
+            const num = parseInt(score, 10) || 0;
+            if (num > 0) {
+              item.games += 1;
+              item.totalPins += num;
+              if (num > item.highScore) item.highScore = num;
+            }
+          });
+        });
+      });
+
+      statsMap.forEach((val, key) => {
+        if (val.games > 0) {
+          val.avg = (val.totalPins / val.games).toFixed(1);
+        } else {
+          const m = members.find(mem => mem.id === key);
+          val.avg = m && m.initialAvg ? Number(m.initialAvg).toFixed(1) : '0.0';
+        }
+      });
+
+      return statsMap;
+    }
+
+    function updateClubStats() {
+      document.getElementById('statTotalMembers').innerText = `${members.length}명`;
+      document.getElementById('statTotalMatches').innerText = `${matchHistory.length}회`;
+
+      const statsMap = computeMemberCumulativeStats();
+      let totalClubPins = 0;
+      let totalClubGames = 0;
+      let clubHigh = 0;
+
+      statsMap.forEach(st => {
+        totalClubPins += st.totalPins;
+        totalClubGames += st.games;
+        if (st.highScore > clubHigh) clubHigh = st.highScore;
+      });
+
+      const overallAvg = totalClubGames > 0 ? (totalClubPins / totalClubGames).toFixed(1) : '182.4';
+      document.getElementById('statClubAverage').innerText = overallAvg;
+      document.getElementById('statClubHighScore').innerText = clubHigh > 0 ? `${clubHigh}점` : '245점';
+    }
+
+    function openMemberModal(isEdit = false) {
+      const modal = document.getElementById('memberModal');
+      const title = document.getElementById('memberModalTitle');
+      document.getElementById('memberForm').reset();
+      document.getElementById('editMemberId').value = '';
+
+      if (!isEdit) {
+        title.innerHTML = `<i class="ph-bold ph-user-plus text-cyan-400"></i> 신규 회원 등록`;
+      }
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeMemberModal() {
+      const modal = document.getElementById('memberModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function editMember(id) {
+      const m = members.find(item => item.id === id);
+      if (!m) return;
+
+      openMemberModal(true);
+      document.getElementById('memberModalTitle').innerHTML = `<i class="ph-bold ph-pencil text-amber-400"></i> 회원 정보 수정`;
+      document.getElementById('editMemberId').value = m.id;
+      document.getElementById('mName').value = m.name;
+      document.getElementById('mGender').value = m.gender || '일반';
+      document.getElementById('mInitialAvg').value = m.initialAvg;
+      document.getElementById('mNote').value = m.note || '';
+    }
+
+    function handleSaveMember(e) {
+      e.preventDefault();
+      const editId = document.getElementById('editMemberId').value;
+      const name = document.getElementById('mName').value.trim();
+      const gender = document.getElementById('mGender').value;
+      const initialAvg = parseInt(document.getElementById('mInitialAvg').value, 10) || 150;
+      const note = document.getElementById('mNote').value.trim();
+
+      if (!name) return;
+
+      if (editId) {
+        const idx = members.findIndex(m => m.id === editId);
+        if (idx !== -1) {
+          members[idx] = { ...members[idx], name, gender, initialAvg, note };
+          currentMatch.participants.forEach(p => {
+            if (p.memberId === editId) {
+              p.name = name;
+            }
+          });
+          saveCurrentMatchState();
+          showToast(`'${name}' 회원 정보가 수정되었습니다.`);
+        }
+      } else {
+        const newMember = {
+          id: 'm-' + Date.now(),
+          name,
+          gender,
+          initialAvg,
+          note
+        };
+        members.push(newMember);
+        showToast(`새 회원 '${name}' 님이 등록되었습니다.`);
+      }
+
+      saveMembers();
+      renderMembersList();
+      renderScoreTable();
+      closeMemberModal();
+    }
+
+    function deleteMember(id) {
+      const m = members.find(item => item.id === id);
+      if (!m) return;
+
+      if (window.confirm(`'${m.name}' 회원을 정말 삭제하시겠습니까?\n과거 경기 기록은 유지됩니다.`)) {
+        members = members.filter(item => item.id !== id);
+        currentMatch.participants = currentMatch.participants.filter(p => p.memberId !== id);
+        saveMembers();
+        saveCurrentMatchState();
+        renderMembersList();
+        renderScoreTable();
+        showToast(`'${m.name}' 회원이 삭제되었습니다.`);
+      }
+    }
+
+    function renderHistoryList() {
+      const container = document.getElementById('historyListContainer');
+      if (!matchHistory || matchHistory.length === 0) {
+        container.innerHTML = `
+          <div class="bg-dark-card border border-dark-border rounded-2xl p-8 text-center text-slate-400 text-xs">
+            저장된 정기전 기록이 없습니다. [정기전 점수 입력]에서 경기를 완료하고 저장해보세요!
+          </div>
+        `;
+        return;
+      }
+
+      let html = '';
+      matchHistory.forEach((hist) => {
+        const sortedP = [...hist.participants].sort((a, b) => {
+          const totA = a.scores.reduce((s, v) => s + (parseInt(v, 10) || 0), 0);
+          const totB = b.scores.reduce((s, v) => s + (parseInt(v, 10) || 0), 0);
+          return totB - totA;
+        });
+
+        const winner = sortedP[0] ? sortedP[0].name : '-';
+        const winnerScore = sortedP[0] ? sortedP[0].scores.reduce((s, v) => s + (parseInt(v, 10) || 0), 0) : 0;
+
+        html += `
+          <div class="bg-dark-card border border-dark-border hover:border-cyan-500/40 rounded-2xl p-4 transition shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 rounded-xl bg-dark-card2 border border-dark-border flex flex-col items-center justify-center text-cyan-400">
+                <i class="ph-bold ph-trophy text-lg"></i>
+                <span class="text-[10px] font-bold text-slate-400">${hist.gamesCount}G</span>
+              </div>
+              <div>
+                <h4 class="font-bold text-white text-sm">${escapeHtml(hist.title)}</h4>
+                <div class="text-xs text-slate-400 flex items-center gap-2 mt-0.5">
+                  <span><i class="ph-bold ph-calendar-blank"></i> ${hist.date}</span>
+                  <span>·</span>
+                  <span>참가 ${hist.participants.length}명</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between sm:justify-end w-full sm:w-auto gap-4">
+              <div class="text-right">
+                <div class="text-[11px] text-amber-400 font-semibold flex items-center gap-1 justify-end">
+                  <i class="ph-fill ph-crown"></i> 1위: ${escapeHtml(winner)}
+                </div>
+                <div class="text-xs text-slate-400 font-outfit">총점 ${winnerScore}점</div>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <button onclick="viewMatchDetail('${hist.id}')" class="px-3 py-1.5 rounded-xl bg-cyan-600/20 text-cyan-300 hover:bg-cyan-600 hover:text-white border border-cyan-500/30 text-xs font-semibold transition">
+                  상세보기
+                </button>
+                <button onclick="deleteHistoryItem('${hist.id}')" class="p-1.5 text-slate-500 hover:text-red-400 rounded-lg transition" title="경기 삭제">
+                  <i class="ph-bold ph-trash text-base"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+
+      container.innerHTML = html;
+    }
+
+    function viewMatchDetail(id) {
+      const hist = matchHistory.find(h => h.id === id);
+      if (!hist) return;
+
+      document.getElementById('detailModalTitle').innerText = hist.title;
+      document.getElementById('detailModalSubtitle').innerText = `${hist.date} · 총 ${hist.gamesCount}게임 · 참가 ${hist.participants.length}명`;
+
+      const content = document.getElementById('detailModalContent');
+
+      // Sort by pure total score
+      const sorted = [...hist.participants].sort((a, b) => {
+        const sumA = a.scores.reduce((s, v) => s + (parseInt(v, 10) || 0), 0);
+        const sumB = b.scores.reduce((s, v) => s + (parseInt(v, 10) || 0), 0);
+        return sumB - sumA;
+      });
+
+      let tableHTML = `
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr class="bg-dark-card2 text-slate-400 border-b border-dark-border">
+                <th class="py-2.5 px-3">순위</th>
+                <th class="py-2.5 px-3">이름</th>
+                <th class="py-2.5 px-3">게임별 스코어</th>
+                <th class="py-2.5 px-3 text-center font-bold text-amber-400">총점</th>
+                <th class="py-2.5 px-2 text-center">에버리지</th>
+                <th class="py-2.5 px-2 text-center">하이</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-dark-border/40">
+      `;
+
+      sorted.forEach((p, idx) => {
+        const total = p.scores.reduce((s, v) => s + (parseInt(v, 10) || 0), 0);
+        const avg = (total / hist.gamesCount).toFixed(1);
+        const high = Math.max(...p.scores, 0);
+
+        tableHTML += `
+          <tr class="hover:bg-dark-card2/30">
+            <td class="py-2.5 px-3 font-bold text-slate-300">${idx + 1}위</td>
+            <td class="py-2.5 px-3 font-bold text-white">${escapeHtml(p.name)}</td>
+            <td class="py-2.5 px-3">
+              ${p.scores.map(s => `<span class="px-1.5 py-0.5 rounded bg-dark-card2 mr-1">${s}</span>`).join('')}
+            </td>
+            <td class="py-2.5 px-3 text-center font-extrabold text-amber-400 text-sm font-outfit">${total}</td>
+            <td class="py-2.5 px-2 text-center text-cyan-300 font-semibold font-outfit">${avg}</td>
+            <td class="py-2.5 px-2 text-center text-slate-400 font-outfit">${high}</td>
+          </tr>
+        `;
+      });
+
+      tableHTML += `</tbody></table></div>`;
+      content.innerHTML = tableHTML;
+
+      const exportBtn = document.getElementById('btnExportMatchCSV');
+      exportBtn.onclick = () => exportMatchToCSV(hist);
+
+      const modal = document.getElementById('matchDetailModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeDetailModal() {
+      const modal = document.getElementById('matchDetailModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function deleteHistoryItem(id) {
+      if (window.confirm('이 정기전 기록을 삭제하시겠습니까?')) {
+        matchHistory = matchHistory.filter(h => h.id !== id);
+        saveHistory();
+        renderHistoryList();
+        showToast('정기전 기록이 삭제되었습니다.');
+      }
+    }
+
+    function exportMatchToCSV(hist) {
+      let csv = '\uFEFF'; // UTF-8 BOM
+      csv += `정기전,${hist.title}\n날짜,${hist.date}\n게임 수,${hist.gamesCount}\n\n`;
+      csv += `순위,회원명,`;
+      for (let g = 1; g <= hist.gamesCount; g++) {
+        csv += `${g}게임,`;
+      }
+      csv += `총점,에버리지,하이스코어\n`;
+
+      const sorted = [...hist.participants].sort((a, b) => {
+        const sumA = a.scores.reduce((s, v) => s + (parseInt(v, 10) || 0), 0);
+        const sumB = b.scores.reduce((s, v) => s + (parseInt(v, 10) || 0), 0);
+        return sumB - sumA;
+      });
+
+      sorted.forEach((p, idx) => {
+        const total = p.scores.reduce((s, v) => s + (parseInt(v, 10) || 0), 0);
+        const avg = (total / hist.gamesCount).toFixed(1);
+        const high = Math.max(...p.scores, 0);
+
+        csv += `${idx + 1},${p.name},`;
+        p.scores.forEach(s => csv += `${s},`);
+        csv += `${total},${avg},${high}\n`;
+      });
+
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `볼링점수_${hist.date}_${hist.title}.csv`;
+      link.click();
+      showToast('CSV 파일이 다운로드되었습니다.');
+    }
+
+    function exportDataToJSON() {
+      const data = {
+        members,
+        matchHistory,
+        currentMatch,
+        version: '2.0-scratch',
+        exportedAt: new Date().toISOString()
+      };
+      const jsonStr = JSON.stringify(data, null, 2);
+      const blob = new Blob([jsonStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `strikemaster_scratch_backup_${new Date().toISOString().split('T')[0]}.json`;
+      a.click();
+      showToast('전체 클럽 데이터가 JSON 파일로 백업되었습니다.');
+    }
+
+    function confirmResetData() {
+      if (window.confirm('경고: 모든 회원 및 경기 기록을 초기 샘플 상태로 되돌리시겠습니까?\n기존 데이터는 삭제됩니다.')) {
+        localStorage.removeItem(STORAGE_KEY_MEMBERS);
+        localStorage.removeItem(STORAGE_KEY_HISTORY);
+        localStorage.removeItem(STORAGE_KEY_CURRENT);
+        loadData();
+        initCurrentMatchUI();
+        renderScoreTable();
+        renderMembersList();
+        renderHistoryList();
+        updateClubStats();
+        showToast('클럽 데이터가 초기 상태로 재설정되었습니다.');
+      }
+    }
+
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      
+      const colors = {
+        success: 'bg-dark-card border-cyan-500 text-cyan-300',
+        warning: 'bg-dark-card border-amber-500 text-amber-300',
+        error: 'bg-dark-card border-red-500 text-red-300'
+      };
+
+      toast.className = `p-3.5 px-4 rounded-xl border shadow-xl text-xs font-semibold flex items-center gap-2 transform transition duration-300 translate-y-3 opacity-0 ${colors[type] || colors.success}`;
+      toast.innerHTML = `
+        <i class="ph-bold ${type === 'error' ? 'ph-warning-circle' : 'ph-check-circle'} text-base"></i>
+        <span>${escapeHtml(message)}</span>
+      `;
+
+      container.appendChild(toast);
+
+      requestAnimationFrame(() => {
+        toast.classList.remove('translate-y-3', 'opacity-0');
+      });
+
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-2');
+        setTimeout(() => toast.remove(), 300);
+      }, 3200);
+    }
+
+    function escapeHtml(string) {
+      if (!string) return '';
+      return String(string)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+  </script>
+</body>
+</html>
