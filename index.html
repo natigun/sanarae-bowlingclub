@@ -4,15 +4,15 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SANARAE BOWLING SCORE CARD</title>
-  <!-- Tailwind CSS -->
+  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Phosphor Icons -->
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
-  <!-- Google Fonts Inter & Noto Sans KR -->
+  <!-- Google Fonts: Inter, Outfit, and Noto Sans KR -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800&family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-  <!-- Tailwind Custom Config -->
+  
   <script>
     tailwind.config = {
       darkMode: 'class',
@@ -40,6 +40,7 @@
       }
     }
   </script>
+
   <style>
     body {
       background-color: #0B0F19;
@@ -61,12 +62,12 @@
       background: #0284c7;
     }
     .glow-cyan {
-      box-shadow: 0 0 16px rgba(6, 182, 212, 0.3);
+      box-shadow: 0 0 18px rgba(6, 182, 212, 0.35);
     }
     .glow-gold {
-      box-shadow: 0 0 16px rgba(245, 158, 11, 0.35);
+      box-shadow: 0 0 20px rgba(245, 158, 11, 0.4);
     }
-    /* Number input spin removal */
+    /* Hide spin buttons on number inputs */
     input[type=number]::-webkit-inner-spin-button, 
     input[type=number]::-webkit-outer-spin-button { 
       -webkit-appearance: none; 
@@ -79,7 +80,7 @@
 </head>
 <body class="min-h-screen flex flex-col custom-scrollbar select-none md:select-text">
 
-  <!-- Top Navigation Bar -->
+  <!-- Top Navigation Header -->
   <header class="sticky top-0 z-40 bg-dark-card/90 backdrop-blur-md border-b border-dark-border px-4 py-3">
     <div class="max-w-7xl mx-auto flex items-center justify-between">
       <div class="flex items-center space-x-3">
@@ -92,27 +93,28 @@
             <span class="text-cyan-400">BOWLING SCORE CARD</span>
             <span class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">스크래치</span>
           </h1>
-          <p class="text-xs text-slate-400 hidden sm:block">사나래 볼링 클럽 순수 득점 & 에버리지 매니저</p>
+          <p class="text-xs text-slate-400 hidden sm:block">사나래 볼링 클럽 순수 득점 & 에버리지 분석 매니저</p>
         </div>
       </div>
 
       <!-- Quick Action Buttons -->
       <div class="flex items-center gap-2">
-        <button id="btnQuickBackup" onclick="exportDataToJSON()" title="데이터 백업" class="p-2 rounded-lg bg-dark-card2 border border-dark-border hover:border-cyan-500/50 text-slate-300 hover:text-cyan-400 text-sm flex items-center gap-1.5 transition">
+        <button id="btnQuickBackup" onclick="exportDataToJSON()" title="데이터 JSON 백업" class="p-2 rounded-xl bg-dark-card2 border border-dark-border hover:border-cyan-500/50 text-slate-300 hover:text-cyan-400 text-xs flex items-center gap-1.5 transition">
           <i class="ph-bold ph-download-simple text-base"></i>
-          <span class="hidden md:inline text-xs font-medium">데이터 백업</span>
+          <span class="hidden md:inline font-medium">데이터 백업</span>
         </button>
-        <button id="btnResetModal" onclick="requestResetData()" title="데이터 초기화" class="p-2 rounded-lg bg-dark-card2 border border-dark-border hover:border-red-500/50 text-slate-400 hover:text-red-400 text-sm transition">
+        <button id="btnResetModal" onclick="requestResetData()" title="데이터 초기화" class="p-2 rounded-xl bg-dark-card2 border border-dark-border hover:border-red-500/50 text-slate-400 hover:text-red-400 text-xs flex items-center gap-1.5 transition">
           <i class="ph-bold ph-arrow-counter-clockwise text-base"></i>
-          <span class="hidden md:inline text-xs">초기화</span>
+          <span class="hidden md:inline font-medium">초기화</span>
         </button>
       </div>
     </div>
   </header>
 
+  <!-- Main Container -->
   <main class="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-5 flex flex-col gap-5">
     
-    <!-- Tab Navigation -->
+    <!-- Tab Navigation Bar -->
     <nav class="flex overflow-x-auto gap-2 border-b border-dark-border pb-2 custom-scrollbar">
       <button onclick="switchTab('match')" id="tabBtn-match" class="tab-btn px-4 py-2.5 rounded-xl font-medium text-sm flex items-center gap-2 transition whitespace-nowrap bg-cyan-500 text-white shadow-lg shadow-cyan-500/20">
         <i class="ph-bold ph-game-controller text-lg"></i>
@@ -158,6 +160,7 @@
             </div>
           </div>
 
+          <!-- Match Action Buttons -->
           <div class="flex items-center gap-2 self-end md:self-center">
             <button onclick="openSelectMembersModal()" class="px-3.5 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-semibold flex items-center gap-1.5 shadow-md shadow-cyan-600/30 transition">
               <i class="ph-bold ph-user-plus text-base"></i>
@@ -170,7 +173,7 @@
           </div>
         </div>
 
-        <!-- Mode & Info banner -->
+        <!-- Mode & Info Banner -->
         <div class="mt-4 pt-3 border-t border-dark-border/60 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-400">
           <div class="flex items-center gap-3">
             <span class="flex items-center gap-1.5">
@@ -181,7 +184,7 @@
             <span class="text-cyan-300 font-medium">3자리 점수(0~300점) 연속 입력 지원</span>
           </div>
           <div class="text-slate-400">
-            * 숫자를 입력하면 총점·에버리지·하이 스코어 및 순위표가 실시간 계산됩니다 (Enter/방향키로 이동 가능).
+            * 선수의 이름을 클릭하면 해당 회원의 역대 모든 정기전 전적을 조회할 수 있습니다.
           </div>
         </div>
       </div>
@@ -193,7 +196,7 @@
             <thead>
               <tr class="bg-dark-card2/80 text-xs font-bold text-slate-300 border-b border-dark-border tracking-wide uppercase">
                 <th class="py-3 px-3 w-12 text-center">No</th>
-                <th class="py-3 px-4 min-w-[120px]">회원명</th>
+                <th class="py-3 px-4 min-w-[130px]">회원명</th>
                 <th id="thGameHeaders" class="p-0">
                   <!-- Dynamically Rendered Game Columns -->
                 </th>
@@ -209,7 +212,7 @@
           </table>
         </div>
 
-        <!-- Empty State if no members -->
+        <!-- Empty State if no participants -->
         <div id="emptyMatchState" class="p-12 flex flex-col items-center justify-center text-center hidden">
           <div class="w-16 h-16 rounded-full bg-dark-card2 flex items-center justify-center text-slate-500 text-3xl mb-3">
             <i class="ph-duotone ph-bowling-ball"></i>
@@ -268,18 +271,20 @@
       </div>
     </section>
 
-    <!-- 3. 회원 관리 & 누적 통계 탭 -->
+    <!-- 3. 회원 관리 & 누적 통계 탭 (기간 필터 포함) -->
     <section id="tab-members" class="tab-content hidden flex flex-col gap-4">
+      
+      <!-- Top Title & Add Member Row -->
       <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <div>
           <h2 class="text-lg font-bold text-white flex items-center gap-2">
             <i class="ph-bold ph-users-three text-cyan-400"></i>
             사나래 클럽 회원 및 누적 통계
           </h2>
-          <p class="text-xs text-slate-400">회원 관리 및 역대 정기전 누적 에버리지 현황</p>
+          <p class="text-xs text-slate-400">회원 관리 및 역대 정기전 전적 분석 (회원명을 누르면 경기 상세 기록을 확인합니다)</p>
         </div>
         <div class="flex items-center gap-2 w-full sm:w-auto">
-          <div class="relative flex-1 sm:w-64">
+          <div class="relative flex-1 sm:w-60">
             <i class="ph-bold ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
             <input type="text" id="memberSearchInput" oninput="renderMembersList()" placeholder="회원 이름 검색..." class="w-full bg-dark-card border border-dark-border rounded-xl pl-9 pr-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500">
           </div>
@@ -290,6 +295,56 @@
         </div>
       </div>
 
+      <!-- Date-Range Filter Control Panel -->
+      <div class="bg-dark-card border border-dark-border rounded-2xl p-4 shadow-sm flex flex-col gap-3">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+          <!-- Preset buttons -->
+          <div class="flex flex-wrap items-center gap-1.5">
+            <span class="text-xs font-bold text-slate-400 mr-1 flex items-center gap-1">
+              <i class="ph-bold ph-funnel"></i> 통계 기간:
+            </span>
+            <button onclick="applyPeriodPreset('all')" id="preset-btn-all" class="period-preset-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-cyan-500 bg-cyan-500/20 text-cyan-300 transition">
+              전체 기간
+            </button>
+            <button onclick="applyPeriodPreset('1m')" id="preset-btn-1m" class="period-preset-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-dark-border bg-dark-card2 text-slate-400 hover:text-white transition">
+              최근 1개월
+            </button>
+            <button onclick="applyPeriodPreset('3m')" id="preset-btn-3m" class="period-preset-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-dark-border bg-dark-card2 text-slate-400 hover:text-white transition">
+              최근 3개월
+            </button>
+            <button onclick="applyPeriodPreset('2026')" id="preset-btn-2026" class="period-preset-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-dark-border bg-dark-card2 text-slate-400 hover:text-white transition">
+              2026년(올해)
+            </button>
+          </div>
+
+          <!-- Date Input Controls -->
+          <div class="flex flex-wrap items-center gap-2">
+            <div class="flex items-center gap-1.5">
+              <input type="date" id="filterStartDate" class="bg-dark-card2 border border-dark-border rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-cyan-500">
+              <span class="text-slate-500 text-xs font-bold">~</span>
+              <input type="date" id="filterEndDate" class="bg-dark-card2 border border-dark-border rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-cyan-500">
+            </div>
+            <button onclick="applyCustomDateFilter()" class="px-3 py-1.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-semibold shadow transition">
+              조회
+            </button>
+            <button onclick="resetDateFilter()" title="필터 초기화" class="p-1.5 rounded-xl bg-dark-card2 border border-dark-border text-slate-400 hover:text-white text-sm transition">
+              <i class="ph-bold ph-arrow-counter-clockwise"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Active Filter Summary Indicator -->
+        <div class="pt-2 border-t border-dark-border/50 flex items-center justify-between text-xs">
+          <div class="flex items-center gap-2 text-slate-400">
+            <span class="w-2 h-2 rounded-full bg-cyan-400 inline-block"></span>
+            <span id="activeFilterDesc">전체 기간 누적 통계</span>
+          </div>
+          <div class="text-cyan-300 font-medium">
+            반영 정기전: <strong id="filteredMatchesCountDisplay" class="text-white font-outfit">0회</strong>
+          </div>
+        </div>
+      </div>
+
       <!-- Club Summary Stats Cards -->
       <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <div class="bg-dark-card border border-dark-border p-4 rounded-2xl flex items-center gap-3">
@@ -297,8 +352,8 @@
             <i class="ph-bold ph-user-check"></i>
           </div>
           <div>
-            <div class="text-xs text-slate-400">총 회원수</div>
-            <div id="statTotalMembers" class="text-lg font-bold text-white">0명</div>
+            <div class="text-xs text-slate-400">기간 내 참가 회원</div>
+            <div id="statTotalMembers" class="text-lg font-bold text-white font-outfit">0명</div>
           </div>
         </div>
         <div class="bg-dark-card border border-dark-border p-4 rounded-2xl flex items-center gap-3">
@@ -306,8 +361,8 @@
             <i class="ph-bold ph-calendar-check"></i>
           </div>
           <div>
-            <div class="text-xs text-slate-400">누적 정기전</div>
-            <div id="statTotalMatches" class="text-lg font-bold text-white">0회</div>
+            <div class="text-xs text-slate-400">기간 내 정기전</div>
+            <div id="statTotalMatches" class="text-lg font-bold text-white font-outfit">0회</div>
           </div>
         </div>
         <div class="bg-dark-card border border-dark-border p-4 rounded-2xl flex items-center gap-3">
@@ -315,8 +370,8 @@
             <i class="ph-bold ph-chart-line-up"></i>
           </div>
           <div>
-            <div class="text-xs text-slate-400">클럽 전체 에버리지</div>
-            <div id="statClubAverage" class="text-lg font-bold text-white">0.0</div>
+            <div class="text-xs text-slate-400">기간 내 클럽 평균</div>
+            <div id="statClubAverage" class="text-lg font-bold text-white font-outfit">0.0</div>
           </div>
         </div>
         <div class="bg-dark-card border border-dark-border p-4 rounded-2xl flex items-center gap-3">
@@ -324,22 +379,22 @@
             <i class="ph-bold ph-fire"></i>
           </div>
           <div>
-            <div class="text-xs text-slate-400">클럽 하이스코어</div>
-            <div id="statClubHighScore" class="text-lg font-bold text-white">0점</div>
+            <div class="text-xs text-slate-400">기간 내 하이스코어</div>
+            <div id="statClubHighScore" class="text-lg font-bold text-white font-outfit">0점</div>
           </div>
         </div>
       </div>
 
-      <!-- Members Table -->
+      <!-- Members Cumulative Table -->
       <div class="bg-dark-card border border-dark-border rounded-2xl overflow-hidden">
         <div class="overflow-x-auto">
-          <table class="w-full text-left border-collapse min-w-[580px]">
+          <table class="w-full text-left border-collapse min-w-[620px]">
             <thead>
               <tr class="bg-dark-card2/80 text-xs font-bold text-slate-300 border-b border-dark-border">
-                <th class="py-3 px-4">회원</th>
-                <th class="py-3 px-3 text-center">누적 경기수</th>
-                <th class="py-3 px-3 text-center text-cyan-300 font-bold">누적 에버리지</th>
-                <th class="py-3 px-3 text-center text-amber-400 font-bold">최고 점수</th>
+                <th class="py-3 px-4">회원명 (클릭하여 전적 조회)</th>
+                <th class="py-3 px-3 text-center">기간 내 출전</th>
+                <th class="py-3 px-3 text-center text-cyan-300 font-bold">기간 누적 AVG</th>
+                <th class="py-3 px-3 text-center text-amber-400 font-bold">기간 최고 점수</th>
                 <th class="py-3 px-4 text-center">관리</th>
               </tr>
             </thead>
@@ -369,6 +424,97 @@
     </section>
 
   </main>
+
+  <!-- MODAL: 회원별 정기전 성적 상세 팝업 (새로 추가) -->
+  <div id="memberHistoryModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-3 sm:p-4">
+    <div class="bg-dark-card border border-dark-border rounded-2xl w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden shadow-2xl">
+      <!-- Modal Header -->
+      <div class="p-4 sm:p-5 border-b border-dark-border flex items-center justify-between bg-dark-card2/70">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center text-white text-2xl font-bold shadow-lg shadow-cyan-500/20">
+            <i class="ph-bold ph-user"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 id="histModalMemberName" class="text-lg font-bold text-white">김동호</h3>
+              <span id="histModalMemberGender" class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">일반</span>
+            </div>
+            <p id="histModalMemberNote" class="text-xs text-slate-400 mt-0.5">락커 15번 · 사나래 볼링 클럽</p>
+          </div>
+        </div>
+        <button onclick="closeMemberHistoryModal()" class="text-slate-400 hover:text-white p-2 rounded-xl hover:bg-dark-card2 text-xl transition">
+          <i class="ph-bold ph-x"></i>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="p-4 sm:p-6 overflow-y-auto custom-scrollbar flex-1 flex flex-col gap-5">
+        
+        <!-- Individual Summary Stat Badges -->
+        <div class="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
+          <div class="bg-dark-card2/70 border border-dark-border p-3 rounded-xl text-center">
+            <span class="text-[11px] text-slate-400 block mb-0.5">정기전 출전</span>
+            <strong id="histModalStatMatches" class="text-base font-bold text-white font-outfit">0회</strong>
+          </div>
+          <div class="bg-dark-card2/70 border border-dark-border p-3 rounded-xl text-center">
+            <span class="text-[11px] text-slate-400 block mb-0.5">총 게임수</span>
+            <strong id="histModalStatGames" class="text-base font-bold text-white font-outfit">0G</strong>
+          </div>
+          <div class="bg-dark-card2/70 border border-dark-border p-3 rounded-xl text-center">
+            <span class="text-[11px] text-cyan-300 block mb-0.5">누적 에버리지</span>
+            <strong id="histModalStatAvg" class="text-base font-bold text-cyan-300 font-outfit">0.0</strong>
+          </div>
+          <div class="bg-dark-card2/70 border border-dark-border p-3 rounded-xl text-center">
+            <span class="text-[11px] text-amber-400 block mb-0.5">개인 하이스코어</span>
+            <strong id="histModalStatHigh" class="text-base font-bold text-amber-400 font-outfit">0점</strong>
+          </div>
+          <div class="bg-dark-card2/70 border border-dark-border p-3 rounded-xl text-center col-span-2 sm:col-span-1">
+            <span class="text-[11px] text-yellow-300 block mb-0.5">정기전 1위 우승</span>
+            <strong id="histModalStatWins" class="text-base font-bold text-yellow-300 font-outfit">0회</strong>
+          </div>
+        </div>
+
+        <!-- History Records Table Section -->
+        <div>
+          <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+            <i class="ph-bold ph-list-bullets text-cyan-400"></i>
+            역대 정기전 상세 출전 기록
+          </h4>
+          <div class="bg-dark-card2/40 border border-dark-border rounded-xl overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse min-w-[560px]">
+                <thead>
+                  <tr class="bg-dark-card2/90 text-xs font-bold text-slate-300 border-b border-dark-border">
+                    <th class="py-2.5 px-3">정기전 대회명</th>
+                    <th class="py-2.5 px-2 text-center w-16">순위</th>
+                    <th class="py-2.5 px-3 text-center">게임별 스코어</th>
+                    <th class="py-2.5 px-3 text-center text-amber-400 font-bold">총점</th>
+                    <th class="py-2.5 px-3 text-center text-cyan-300">에버리지</th>
+                    <th class="py-2.5 px-2 text-center text-slate-400">하이</th>
+                  </tr>
+                </thead>
+                <tbody id="histModalTableBody" class="divide-y divide-dark-border/40 text-xs">
+                  <!-- Rendered dynamically -->
+                </tbody>
+              </table>
+            </div>
+            <div id="histModalEmptyState" class="p-8 text-center text-slate-400 text-xs hidden">
+              해당 회원의 등록된 지난 정기전 경기 내역이 없습니다.
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="p-4 border-t border-dark-border bg-dark-card2/60 flex items-center justify-between">
+        <span class="text-[11px] text-slate-400">* 스크래치(순수 득점) 기준으로 집계된 공식 전적입니다.</span>
+        <button onclick="closeMemberHistoryModal()" class="px-4 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-semibold shadow transition">
+          닫기
+        </button>
+      </div>
+    </div>
+  </div>
 
   <!-- MODAL: 회원 추가 / 수정 -->
   <div id="memberModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden items-center justify-center p-4">
@@ -477,7 +623,7 @@
     </div>
   </div>
 
-  <!-- MODAL: 커스텀 확인 창 (브라우저 기본 alert/confirm 대체) -->
+  <!-- MODAL: 커스텀 확인 창 -->
   <div id="customConfirmModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
     <div class="bg-dark-card border border-dark-border rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl p-5">
       <div class="w-12 h-12 rounded-full bg-red-500/10 text-red-400 flex items-center justify-center text-2xl mx-auto mb-3">
@@ -495,13 +641,14 @@
   <!-- Custom Toast Notification Container -->
   <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
+  <!-- JAVASCRIPT LOGIC -->
   <script>
-    /* SANARAE BOWLING SCORE CARD Engine - Pure Scratch System */
-    const STORAGE_KEY_MEMBERS = 'sanarae_members_scratch_v3';
-    const STORAGE_KEY_HISTORY = 'sanarae_history_scratch_v3';
-    const STORAGE_KEY_CURRENT = 'sanarae_current_match_scratch_v3';
+    /* SANARAE BOWLING SCORE CARD Engine - Pure Scratch System v5.0 */
+    const STORAGE_KEY_MEMBERS = 'sanarae_members_scratch_v5';
+    const STORAGE_KEY_HISTORY = 'sanarae_history_scratch_v5';
+    const STORAGE_KEY_CURRENT = 'sanarae_current_match_scratch_v5';
 
-    // Provided 6 member roster with clean scratch averages
+    // 6 Member roster with baseline attributes
     const DEFAULT_MEMBERS = [
       { id: "m1", name: "김동호", gender: "일반", initialAvg: 195, note: "락커 15번" },
       { id: "m2", name: "이수진", gender: "여성", initialAvg: 168, note: "총무" },
@@ -511,12 +658,12 @@
       { id: "m6", name: "강준서", gender: "일반", initialAvg: 190, note: "정기전 개근" }
     ];
 
-    // Provided historical matches
+    // Rich sample historical matches across July, August, and September 2026 for realistic date testing
     const DEFAULT_HISTORY = [
       {
         id: "hist-sample-1",
-        date: "2026-09-17",
-        title: "9월 3주차 정기전",
+        date: "2026-07-16",
+        title: "7월 3주차 정기전",
         gamesCount: 3,
         participants: [
           { memberId: "m3", name: "박태현", scores: [215, 234, 198] },
@@ -524,19 +671,69 @@
           { memberId: "m5", name: "정민우", scores: [180, 192, 175] },
           { memberId: "m2", name: "이수진", scores: [170, 165, 180] }
         ]
+      },
+      {
+        id: "hist-sample-2",
+        date: "2026-08-06",
+        title: "8월 1주차 정기전",
+        gamesCount: 4,
+        participants: [
+          { memberId: "m1", name: "김동호", scores: [210, 225, 198, 204] },
+          { memberId: "m3", name: "박태현", scores: [198, 212, 230, 189] },
+          { memberId: "m6", name: "강준서", scores: [185, 190, 201, 194] },
+          { memberId: "m2", name: "이수진", scores: [160, 175, 188, 165] }
+        ]
+      },
+      {
+        id: "hist-sample-3",
+        date: "2026-08-20",
+        title: "8월 3주차 정기전",
+        gamesCount: 4,
+        participants: [
+          { memberId: "m3", name: "박태현", scores: [238, 246, 215, 220] },
+          { memberId: "m6", name: "강준서", scores: [205, 195, 210, 198] },
+          { memberId: "m1", name: "김동호", scores: [190, 205, 188, 202] },
+          { memberId: "m5", name: "정민우", scores: [175, 188, 195, 180] },
+          { memberId: "m4", name: "최미나", scores: [140, 155, 160, 148] }
+        ]
+      },
+      {
+        id: "hist-sample-4",
+        date: "2026-09-10",
+        title: "9월 2주차 정기전",
+        gamesCount: 4,
+        participants: [
+          { memberId: "m6", name: "강준서", scores: [224, 215, 208, 219] },
+          { memberId: "m1", name: "김동호", scores: [202, 198, 220, 211] },
+          { memberId: "m3", name: "박태현", scores: [210, 205, 198, 214] },
+          { memberId: "m2", name: "이수진", scores: [175, 182, 170, 180] },
+          { memberId: "m4", name: "최미나", scores: [148, 162, 150, 158] }
+        ]
+      },
+      {
+        id: "hist-sample-5",
+        date: "2026-09-17",
+        title: "9월 3주차 정기전",
+        gamesCount: 3,
+        participants: [
+          { memberId: "m1", name: "김동호", scores: [225, 238, 214] },
+          { memberId: "m3", name: "박태현", scores: [205, 220, 240] },
+          { memberId: "m5", name: "정민우", scores: [190, 185, 200] },
+          { memberId: "m2", name: "이수진", scores: [168, 172, 179] }
+        ]
       }
     ];
 
-    // Provided active match configuration (4 games)
+    // Active in-progress match configuration (4 games)
     const DEFAULT_CURRENT_MATCH = {
-      date: "2026-09-21",
-      title: "9월 3주차 정기전",
+      date: "2026-09-24",
+      title: "9월 4주차 정기전",
       gamesCount: 4,
       participants: [
-        { memberId: "m1", name: "김동호", scores: [180, 195, 200, 0] },
-        { memberId: "m2", name: "이수진", scores: [180, 195, 200, 0] },
-        { memberId: "m3", name: "박태현", scores: [180, 195, 200, 0] },
-        { memberId: "m4", name: "최미나", scores: [180, 195, 200, 0] }
+        { memberId: "m1", name: "김동호", scores: [195, 210, 188, 205] },
+        { memberId: "m2", name: "이수진", scores: [172, 165, 180, 190] },
+        { memberId: "m3", name: "박태현", scores: [224, 215, 245, 201] },
+        { memberId: "m4", name: "최미나", scores: [150, 162, 144, 170] }
       ]
     };
 
@@ -544,13 +741,19 @@
     let matchHistory = [];
     let currentMatch = {};
 
+    // Member Cumulative Filter State
+    let memberFilter = {
+      preset: 'all',
+      startDate: null,
+      endDate: null
+    };
+
     window.addEventListener('DOMContentLoaded', () => {
       loadData();
       initCurrentMatchUI();
       renderScoreTable();
       renderMembersList();
       renderHistoryList();
-      updateClubStats();
     });
 
     function loadData() {
@@ -576,12 +779,12 @@
 
     function saveMembers() {
       localStorage.setItem(STORAGE_KEY_MEMBERS, JSON.stringify(members));
-      updateClubStats();
+      renderMembersList();
     }
 
     function saveHistory() {
       localStorage.setItem(STORAGE_KEY_HISTORY, JSON.stringify(matchHistory));
-      updateClubStats();
+      renderMembersList();
     }
 
     function saveCurrentMatchState() {
@@ -675,7 +878,10 @@
           <tr id="participant-row-${pIdx}" class="hover:bg-dark-card2/50 transition border-b border-dark-border/40">
             <td class="py-3 px-3 text-center text-xs font-semibold text-slate-400">${pIdx + 1}</td>
             <td class="py-3 px-4 font-medium text-white">
-              <span class="font-bold text-sm text-cyan-200">${escapeHtml(p.name)}</span>
+              <button onclick="openMemberHistoryModal('${p.memberId}')" class="text-left font-bold text-sm text-cyan-300 hover:text-cyan-200 hover:underline flex items-center gap-1.5 group" title="역대 경기 전적 조회">
+                <span>${escapeHtml(p.name)}</span>
+                <i class="ph-bold ph-chart-bar text-xs opacity-50 group-hover:opacity-100 transition"></i>
+              </button>
             </td>
             <td class="p-0">
               <div class="flex items-center">
@@ -710,7 +916,6 @@
       tableBody.innerHTML = rowsHTML;
     }
 
-    // Seamless 3-digit input: Updates state and DOM cells in-place without re-rendering table
     function handleLiveScoreInput(event, pIdx, gIdx) {
       let rawVal = event.target.value.trim();
       let num = 0;
@@ -731,10 +936,10 @@
       currentMatch.participants[pIdx].scores[gIdx] = num;
       saveCurrentMatchState();
 
-      // Update input styling class dynamically
+      // Update input styling dynamically based on tier
       event.target.className = `w-full max-w-[68px] bg-dark-bg border border-dark-border/80 rounded-lg text-center py-1.5 text-sm font-bold text-white focus:outline-none focus:border-cyan-400 transition ${getScoreColor(num)}`;
 
-      // Update row metrics directly without destroying input DOM
+      // Update row totals directly
       const p = currentMatch.participants[pIdx];
       const totalScore = p.scores.reduce((sum, val) => sum + (parseInt(val, 10) || 0), 0);
       const average = (totalScore / (currentMatch.gamesCount || 1)).toFixed(1);
@@ -749,7 +954,6 @@
       if (highEl) highEl.innerText = highScore > 0 ? highScore : '-';
     }
 
-    // Keyboard navigation: Tab, Enter, and Arrow keys smoothly move between inputs
     function handleScoreKeyNavigation(event, pIdx, gIdx) {
       if (event.key === 'Enter' || event.key === 'ArrowDown') {
         event.preventDefault();
@@ -759,6 +963,22 @@
         event.preventDefault();
         const prevTarget = document.getElementById(`score-input-${pIdx - 1}-${gIdx}`);
         if (prevTarget) prevTarget.focus();
+      } else if (event.key === 'ArrowRight') {
+        if (event.target.selectionStart === event.target.value.length) {
+          const nextGameTarget = document.getElementById(`score-input-${pIdx}-${gIdx + 1}`);
+          if (nextGameTarget) {
+            event.preventDefault();
+            nextGameTarget.focus();
+          }
+        }
+      } else if (event.key === 'ArrowLeft') {
+        if (event.target.selectionStart === 0) {
+          const prevGameTarget = document.getElementById(`score-input-${pIdx}-${gIdx - 1}`);
+          if (prevGameTarget) {
+            event.preventDefault();
+            prevGameTarget.focus();
+          }
+        }
       }
     }
 
@@ -934,7 +1154,11 @@
               <span class="text-xs text-slate-400">하이 ${item.high}점</span>
             </div>
             <div>
-              <div class="text-lg font-bold text-white mb-0.5">${escapeHtml(item.name)}</div>
+              <div class="text-lg font-bold text-white mb-0.5 flex items-center gap-1.5">
+                <button onclick="openMemberHistoryModal('${item.memberId}')" class="hover:underline text-cyan-300">
+                  ${escapeHtml(item.name)}
+                </button>
+              </div>
               <div class="text-2xl font-black font-outfit text-amber-400 tracking-tight">
                 ${item.total}<span class="text-xs font-normal text-slate-400 ml-1">점</span>
               </div>
@@ -948,7 +1172,7 @@
       });
       podiumEl.innerHTML = podiumHTML;
 
-      // Full Table
+      // Full Standings Table
       let tableRows = '';
       statsList.forEach((st, idx) => {
         const rank = idx + 1;
@@ -960,7 +1184,11 @@
         tableRows += `
           <tr class="hover:bg-dark-card2/50 transition">
             <td class="py-3 px-4 text-center">${rankBadge}</td>
-            <td class="py-3 px-4 font-bold text-white">${escapeHtml(st.name)}</td>
+            <td class="py-3 px-4 font-bold text-white">
+              <button onclick="openMemberHistoryModal('${st.memberId}')" class="text-left hover:underline text-cyan-300 font-bold">
+                ${escapeHtml(st.name)}
+              </button>
+            </td>
             <td class="py-3 px-3 text-center text-xs text-slate-400">
               ${st.scores.map(s => `<span class="px-2 py-0.5 rounded bg-dark-bg border border-dark-border mr-1 ${s >= 200 ? 'text-cyan-400 font-bold' : ''}">${s}</span>`).join('')}
             </td>
@@ -991,7 +1219,10 @@
         const avg = (total / (currentMatch.gamesCount || 1)).toFixed(1);
         const high = Math.max(...p.scores.map(v => parseInt(v, 10) || 0), 0);
         return { ...p, total, avg, high };
-      }).sort((a, b) => b.total - a.total);
+      }).sort((a, b) => {
+        if (b.total !== a.total) return b.total - a.total;
+        return b.high - a.high;
+      });
 
       statsList.forEach((item, idx) => {
         text += `${idx + 1}위: ${item.name} - 총점 ${item.total}점 (AVG ${item.avg}, 하이 ${item.high})\n  └ [${item.scores.join(' / ')}]\n`;
@@ -1008,21 +1239,205 @@
       showToast('사나래 순위표 텍스트가 클립보드에 복사되었습니다!');
     }
 
+    function applyPeriodPreset(preset) {
+      memberFilter.preset = preset;
+      const today = new Date();
+      const formatDate = (d) => d.toISOString().split('T')[0];
+
+      // Update preset buttons styling
+      document.querySelectorAll('.period-preset-btn').forEach(btn => {
+        btn.className = 'period-preset-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-dark-border bg-dark-card2 text-slate-400 hover:text-white transition';
+      });
+
+      const activeBtn = document.getElementById(`preset-btn-${preset}`);
+      if (activeBtn) {
+        activeBtn.className = 'period-preset-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-cyan-500 bg-cyan-500/20 text-cyan-300 transition';
+      }
+
+      if (preset === 'all') {
+        memberFilter.startDate = null;
+        memberFilter.endDate = null;
+        document.getElementById('filterStartDate').value = '';
+        document.getElementById('filterEndDate').value = '';
+      } else if (preset === '1m') {
+        const past = new Date(today);
+        past.setMonth(today.getMonth() - 1);
+        memberFilter.startDate = formatDate(past);
+        memberFilter.endDate = formatDate(today);
+        document.getElementById('filterStartDate').value = memberFilter.startDate;
+        document.getElementById('filterEndDate').value = memberFilter.endDate;
+      } else if (preset === '3m') {
+        const past = new Date(today);
+        past.setMonth(today.getMonth() - 3);
+        memberFilter.startDate = formatDate(past);
+        memberFilter.endDate = formatDate(today);
+        document.getElementById('filterStartDate').value = memberFilter.startDate;
+        document.getElementById('filterEndDate').value = memberFilter.endDate;
+      } else if (preset === '2026') {
+        memberFilter.startDate = '2026-01-01';
+        memberFilter.endDate = '2026-12-31';
+        document.getElementById('filterStartDate').value = memberFilter.startDate;
+        document.getElementById('filterEndDate').value = memberFilter.endDate;
+      }
+
+      renderMembersList();
+    }
+
+    function applyCustomDateFilter() {
+      const s = document.getElementById('filterStartDate').value;
+      const e = document.getElementById('filterEndDate').value;
+
+      if (!s && !e) {
+        applyPeriodPreset('all');
+        return;
+      }
+
+      memberFilter.preset = 'custom';
+      memberFilter.startDate = s || null;
+      memberFilter.endDate = e || null;
+
+      document.querySelectorAll('.period-preset-btn').forEach(btn => {
+        btn.className = 'period-preset-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-dark-border bg-dark-card2 text-slate-400 hover:text-white transition';
+      });
+
+      renderMembersList();
+      showToast('지정된 기간으로 누적 통계가 필터링되었습니다.');
+    }
+
+    function resetDateFilter() {
+      applyPeriodPreset('all');
+      showToast('통계 기간이 전체 기간으로 초기화되었습니다.');
+    }
+
+    function computeFilteredMemberStats() {
+      const statsMap = new Map();
+
+      members.forEach(m => {
+        statsMap.set(m.id, {
+          memberId: m.id,
+          name: m.name,
+          gender: m.gender,
+          initialAvg: m.initialAvg,
+          note: m.note,
+          matchCount: 0,
+          games: 0,
+          totalPins: 0,
+          avg: '0.0',
+          highScore: 0
+        });
+      });
+
+      // Filter matches by date
+      const filteredMatches = matchHistory.filter(match => {
+        if (!match.date) return true;
+        if (memberFilter.startDate && match.date < memberFilter.startDate) return false;
+        if (memberFilter.endDate && match.date > memberFilter.endDate) return false;
+        return true;
+      });
+
+      filteredMatches.forEach(match => {
+        match.participants.forEach(p => {
+          if (!statsMap.has(p.memberId)) {
+            statsMap.set(p.memberId, {
+              memberId: p.memberId,
+              name: p.name,
+              gender: '일반',
+              initialAvg: 180,
+              note: '',
+              matchCount: 0,
+              games: 0,
+              totalPins: 0,
+              avg: '0.0',
+              highScore: 0
+            });
+          }
+          const item = statsMap.get(p.memberId);
+          let matchGames = 0;
+          p.scores.forEach(score => {
+            const num = parseInt(score, 10) || 0;
+            if (num > 0) {
+              item.games += 1;
+              item.totalPins += num;
+              matchGames += 1;
+              if (num > item.highScore) item.highScore = num;
+            }
+          });
+          if (matchGames > 0) {
+            item.matchCount += 1;
+          }
+        });
+      });
+
+      statsMap.forEach((val, key) => {
+        if (val.games > 0) {
+          val.avg = (val.totalPins / val.games).toFixed(1);
+        } else {
+          // If no games played in this filtered period
+          val.avg = memberFilter.preset === 'all' && val.initialAvg ? Number(val.initialAvg).toFixed(1) : '-';
+        }
+      });
+
+      return {
+        statsMap,
+        filteredMatchesCount: filteredMatches.length
+      };
+    }
+
     function renderMembersList() {
       const tbody = document.getElementById('membersTableBody');
       const searchKeyword = (document.getElementById('memberSearchInput').value || '').trim().toLowerCase();
 
-      const statsMap = computeMemberCumulativeStats();
+      const { statsMap, filteredMatchesCount } = computeFilteredMemberStats();
 
+      // Update Filter indicators
+      const filterDescEl = document.getElementById('activeFilterDesc');
+      const countEl = document.getElementById('filteredMatchesCountDisplay');
+      countEl.innerText = `${filteredMatchesCount}회`;
+
+      if (memberFilter.preset === 'all') {
+        filterDescEl.innerText = `전체 기간 누적 통계 (역대 모든 정기전 반영)`;
+      } else if (memberFilter.preset === '1m') {
+        filterDescEl.innerText = `최근 1개월 통계 (${memberFilter.startDate} ~ ${memberFilter.endDate})`;
+      } else if (memberFilter.preset === '3m') {
+        filterDescEl.innerText = `최근 3개월 통계 (${memberFilter.startDate} ~ ${memberFilter.endDate})`;
+      } else if (memberFilter.preset === '2026') {
+        filterDescEl.innerText = `2026년 시즌 전체 통계`;
+      } else {
+        filterDescEl.innerText = `사용자 지정 기간 (${memberFilter.startDate || '시작'} ~ ${memberFilter.endDate || '현재'})`;
+      }
+
+      // Update Club Summary Cards
+      let activeMemberCount = 0;
+      let totalClubPins = 0;
+      let totalClubGames = 0;
+      let clubHigh = 0;
+
+      statsMap.forEach(st => {
+        if (st.games > 0) {
+          activeMemberCount++;
+          totalClubPins += st.totalPins;
+          totalClubGames += st.games;
+          if (st.highScore > clubHigh) clubHigh = st.highScore;
+        }
+      });
+
+      document.getElementById('statTotalMembers').innerText = `${activeMemberCount}명 / ${members.length}명`;
+      document.getElementById('statTotalMatches').innerText = `${filteredMatchesCount}회`;
+      document.getElementById('statClubAverage').innerText = totalClubGames > 0 ? (totalClubPins / totalClubGames).toFixed(1) : '-';
+      document.getElementById('statClubHighScore').innerText = clubHigh > 0 ? `${clubHigh}점` : '-';
+
+      // Filter and Sort Table items
       const filtered = members.filter(m => {
         if (!searchKeyword) return true;
         return m.name.toLowerCase().includes(searchKeyword) || (m.note && m.note.toLowerCase().includes(searchKeyword));
       });
 
       filtered.sort((a, b) => {
-        const statA = statsMap.get(a.id) || { avg: a.initialAvg || 0 };
-        const statB = statsMap.get(b.id) || { avg: b.initialAvg || 0 };
-        return parseFloat(statB.avg) - parseFloat(statA.avg);
+        const statA = statsMap.get(a.id) || { avg: 0 };
+        const statB = statsMap.get(b.id) || { avg: 0 };
+        const avgA = statA.avg === '-' ? -1 : parseFloat(statA.avg) || 0;
+        const avgB = statB.avg === '-' ? -1 : parseFloat(statB.avg) || 0;
+        return avgB - avgA;
       });
 
       if (filtered.length === 0) {
@@ -1032,19 +1447,28 @@
 
       let html = '';
       filtered.forEach(m => {
-        const st = statsMap.get(m.id) || { games: 0, totalPins: 0, avg: m.initialAvg, highScore: 0 };
+        const st = statsMap.get(m.id) || { matchCount: 0, games: 0, totalPins: 0, avg: '-', highScore: 0 };
         html += `
           <tr class="hover:bg-dark-card2/50 transition">
             <td class="py-3.5 px-4">
-              <div class="font-bold text-white text-sm flex items-center gap-2">
-                <span>${escapeHtml(m.name)}</span>
+              <div class="flex items-center gap-2">
+                <button onclick="openMemberHistoryModal('${m.id}')" class="font-bold text-white text-sm hover:text-cyan-300 hover:underline flex items-center gap-1.5 transition text-left group">
+                  <span>${escapeHtml(m.name)}</span>
+                  <i class="ph-bold ph-arrow-up-right text-xs text-cyan-400 opacity-60 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition"></i>
+                </button>
                 <span class="text-[10px] px-1.5 py-0.5 rounded bg-dark-card2 border border-dark-border text-slate-400">${escapeHtml(m.gender || '일반')}</span>
               </div>
               <div class="text-xs text-slate-400 mt-0.5">${escapeHtml(m.note || '-')}</div>
             </td>
-            <td class="py-3 px-3 text-center text-xs text-slate-300 font-medium font-outfit">${st.games}G</td>
-            <td class="py-3 px-3 text-center font-bold text-sm text-cyan-300 font-outfit">${st.avg}</td>
-            <td class="py-3 px-3 text-center font-bold text-sm text-amber-400 font-outfit">${st.highScore || '-'}</td>
+            <td class="py-3 px-3 text-center text-xs text-slate-300 font-medium font-outfit">
+              ${st.matchCount}회 <span class="text-slate-500">(${st.games}G)</span>
+            </td>
+            <td class="py-3 px-3 text-center font-bold text-sm text-cyan-300 font-outfit">
+              ${st.avg}
+            </td>
+            <td class="py-3 px-3 text-center font-bold text-sm text-amber-400 font-outfit">
+              ${st.highScore > 0 ? `${st.highScore}점` : '-'}
+            </td>
             <td class="py-3 px-4 text-center">
               <div class="flex items-center justify-center gap-1">
                 <button onclick="editMember('${m.id}')" class="p-1.5 text-slate-400 hover:text-cyan-400 hover:bg-dark-card2 rounded-lg transition" title="회원 수정">
@@ -1062,65 +1486,130 @@
       tbody.innerHTML = html;
     }
 
-    function computeMemberCumulativeStats() {
-      const statsMap = new Map();
+    function openMemberHistoryModal(memberId) {
+      const member = members.find(m => m.id === memberId) || {
+        id: memberId,
+        name: '회원',
+        gender: '일반',
+        initialAvg: 180,
+        note: ''
+      };
 
-      members.forEach(m => {
-        statsMap.set(m.id, {
-          games: 0,
-          totalPins: 0,
-          avg: parseFloat(m.initialAvg) || 0,
-          highScore: 0
-        });
-      });
+      document.getElementById('histModalMemberName').innerText = member.name;
+      document.getElementById('histModalMemberGender').innerText = member.gender || '일반';
+      document.getElementById('histModalMemberNote').innerText = `${member.note || '사나래 정회원'} · 기준 에버리지: ${member.initialAvg || '-'}`;
+
+      // Extract all past matches where this member participated
+      const memberMatches = [];
+      let totalPins = 0;
+      let totalGames = 0;
+      let highestScore = 0;
+      let firstPlaceWins = 0;
 
       matchHistory.forEach(match => {
-        match.participants.forEach(p => {
-          if (!statsMap.has(p.memberId)) {
-            statsMap.set(p.memberId, { games: 0, totalPins: 0, avg: 0, highScore: 0 });
-          }
-          const item = statsMap.get(p.memberId);
-          p.scores.forEach(score => {
-            const num = parseInt(score, 10) || 0;
-            if (num > 0) {
-              item.games += 1;
-              item.totalPins += num;
-              if (num > item.highScore) item.highScore = num;
-            }
+        const participant = match.participants.find(p => p.memberId === memberId || p.name === member.name);
+        if (participant) {
+          // Calculate rank within this specific match
+          const sortedParticipants = [...match.participants].sort((a, b) => {
+            const sumA = a.scores.reduce((s, v) => s + (parseInt(v, 10) || 0), 0);
+            const sumB = b.scores.reduce((s, v) => s + (parseInt(v, 10) || 0), 0);
+            if (sumB !== sumA) return sumB - sumA;
+            const highA = Math.max(...a.scores.map(v => parseInt(v, 10) || 0), 0);
+            const highB = Math.max(...b.scores.map(v => parseInt(v, 10) || 0), 0);
+            return highB - highA;
           });
-        });
-      });
 
-      statsMap.forEach((val, key) => {
-        if (val.games > 0) {
-          val.avg = (val.totalPins / val.games).toFixed(1);
-        } else {
-          const m = members.find(mem => mem.id === key);
-          val.avg = m && m.initialAvg ? Number(m.initialAvg).toFixed(1) : '0.0';
+          const rankIdx = sortedParticipants.findIndex(p => p.memberId === memberId || p.name === member.name);
+          const rank = rankIdx !== -1 ? rankIdx + 1 : '-';
+          if (rank === 1) firstPlaceWins++;
+
+          const scores = participant.scores || [];
+          const matchTotal = scores.reduce((s, v) => s + (parseInt(v, 10) || 0), 0);
+          const activeScores = scores.filter(s => parseInt(s, 10) > 0);
+          const matchAvg = activeScores.length > 0 ? (matchTotal / activeScores.length).toFixed(1) : '0.0';
+          const matchHigh = Math.max(...scores.map(v => parseInt(v, 10) || 0), 0);
+
+          totalPins += matchTotal;
+          totalGames += activeScores.length;
+          if (matchHigh > highestScore) highestScore = matchHigh;
+
+          memberMatches.push({
+            date: match.date,
+            title: match.title,
+            gamesCount: match.gamesCount,
+            rank,
+            scores,
+            matchTotal,
+            matchAvg,
+            matchHigh
+          });
         }
       });
 
-      return statsMap;
+      // Update Individual Stat Summary Badges
+      const careerAvg = totalGames > 0 ? (totalPins / totalGames).toFixed(1) : (member.initialAvg ? Number(member.initialAvg).toFixed(1) : '0.0');
+      document.getElementById('histModalStatMatches').innerText = `${memberMatches.length}회`;
+      document.getElementById('histModalStatGames').innerText = `${totalGames}G`;
+      document.getElementById('histModalStatAvg').innerText = careerAvg;
+      document.getElementById('histModalStatHigh').innerText = highestScore > 0 ? `${highestScore}점` : '-';
+      document.getElementById('histModalStatWins').innerText = `${firstPlaceWins}회`;
+
+      // Render Matches Table
+      const tableBody = document.getElementById('histModalTableBody');
+      const emptyState = document.getElementById('histModalEmptyState');
+
+      if (memberMatches.length === 0) {
+        tableBody.innerHTML = '';
+        emptyState.classList.remove('hidden');
+      } else {
+        emptyState.classList.add('hidden');
+        let rows = '';
+        memberMatches.forEach(m => {
+          let rankBadge = `<span class="px-2 py-0.5 rounded bg-dark-card border border-dark-border text-slate-300 font-bold">${m.rank}위</span>`;
+          if (m.rank === 1) {
+            rankBadge = `<span class="px-2 py-0.5 rounded bg-amber-500 text-black font-extrabold flex items-center justify-center gap-0.5"><i class="ph-bold ph-trophy"></i> 1위</span>`;
+          } else if (m.rank === 2) {
+            rankBadge = `<span class="px-2 py-0.5 rounded bg-slate-300 text-black font-bold flex items-center justify-center gap-0.5">2위</span>`;
+          } else if (m.rank === 3) {
+            rankBadge = `<span class="px-2 py-0.5 rounded bg-amber-700 text-white font-bold flex items-center justify-center gap-0.5">3위</span>`;
+          }
+
+          rows += `
+            <tr class="hover:bg-dark-card2/50 transition">
+              <td class="py-2.5 px-3">
+                <div class="font-bold text-white">${escapeHtml(m.title)}</div>
+                <div class="text-[11px] text-slate-400 font-outfit">${m.date}</div>
+              </td>
+              <td class="py-2.5 px-2 text-center">${rankBadge}</td>
+              <td class="py-2.5 px-3 text-center">
+                <div class="flex items-center justify-center gap-1">
+                  ${m.scores.map(s => {
+                    const num = parseInt(s, 10) || 0;
+                    let cls = 'bg-dark-card text-slate-300 border-dark-border';
+                    if (num === 300) cls = 'bg-amber-500/20 text-amber-300 font-black border-amber-500/60';
+                    else if (num >= 200) cls = 'bg-cyan-500/20 text-cyan-300 font-bold border-cyan-500/40';
+                    return `<span class="px-1.5 py-0.5 rounded border text-[11px] font-outfit ${cls}">${num}</span>`;
+                  }).join('')}
+                </div>
+              </td>
+              <td class="py-2.5 px-3 text-center font-extrabold text-amber-400 text-sm font-outfit">${m.matchTotal}</td>
+              <td class="py-2.5 px-3 text-center text-cyan-300 font-semibold font-outfit">${m.matchAvg}</td>
+              <td class="py-2.5 px-2 text-center text-slate-400 font-outfit">${m.matchHigh}</td>
+            </tr>
+          `;
+        });
+        tableBody.innerHTML = rows;
+      }
+
+      const modal = document.getElementById('memberHistoryModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
     }
 
-    function updateClubStats() {
-      document.getElementById('statTotalMembers').innerText = `${members.length}명`;
-      document.getElementById('statTotalMatches').innerText = `${matchHistory.length}회`;
-
-      const statsMap = computeMemberCumulativeStats();
-      let totalClubPins = 0;
-      let totalClubGames = 0;
-      let clubHigh = 0;
-
-      statsMap.forEach(st => {
-        totalClubPins += st.totalPins;
-        totalClubGames += st.games;
-        if (st.highScore > clubHigh) clubHigh = st.highScore;
-      });
-
-      const overallAvg = totalClubGames > 0 ? (totalClubPins / totalClubGames).toFixed(1) : '182.4';
-      document.getElementById('statClubAverage').innerText = overallAvg;
-      document.getElementById('statClubHighScore').innerText = clubHigh > 0 ? `${clubHigh}점` : '234점';
+    function closeMemberHistoryModal() {
+      const modal = document.getElementById('memberHistoryModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
     }
 
     function openMemberModal(isEdit = false) {
@@ -1190,7 +1679,6 @@
       }
 
       saveMembers();
-      renderMembersList();
       renderScoreTable();
       closeMemberModal();
     }
@@ -1207,7 +1695,6 @@
           currentMatch.participants = currentMatch.participants.filter(p => p.memberId !== id);
           saveMembers();
           saveCurrentMatchState();
-          renderMembersList();
           renderScoreTable();
           showToast(`'${m.name}' 회원이 삭제되었습니다.`);
         }
@@ -1241,7 +1728,7 @@
             <div class="flex items-center gap-3">
               <div class="w-12 h-12 rounded-xl bg-dark-card2 border border-dark-border flex flex-col items-center justify-center text-cyan-400">
                 <i class="ph-bold ph-trophy text-lg"></i>
-                <span class="text-[10px] font-bold text-slate-400">${hist.gamesCount}G</span>
+                <span class="text-[10px] font-bold text-slate-400 font-outfit">${hist.gamesCount}G</span>
               </div>
               <div>
                 <h4 class="font-bold text-white text-sm">${escapeHtml(hist.title)}</h4>
@@ -1316,9 +1803,13 @@
         tableHTML += `
           <tr class="hover:bg-dark-card2/30">
             <td class="py-2.5 px-3 font-bold text-slate-300">${idx + 1}위</td>
-            <td class="py-2.5 px-3 font-bold text-white">${escapeHtml(p.name)}</td>
+            <td class="py-2.5 px-3 font-bold text-white">
+              <button onclick="closeDetailModal(); openMemberHistoryModal('${p.memberId}')" class="text-cyan-300 hover:underline">
+                ${escapeHtml(p.name)}
+              </button>
+            </td>
             <td class="py-2.5 px-3">
-              ${p.scores.map(s => `<span class="px-1.5 py-0.5 rounded bg-dark-card2 mr-1">${s}</span>`).join('')}
+              ${p.scores.map(s => `<span class="px-1.5 py-0.5 rounded bg-dark-card2 mr-1 font-outfit">${s}</span>`).join('')}
             </td>
             <td class="py-2.5 px-3 text-center font-extrabold text-amber-400 text-sm font-outfit">${total}</td>
             <td class="py-2.5 px-2 text-center text-cyan-300 font-semibold font-outfit">${avg}</td>
@@ -1358,7 +1849,7 @@
     }
 
     function exportMatchToCSV(hist) {
-      let csv = '\uFEFF'; // UTF-8 BOM for Excel
+      let csv = '\uFEFF'; // UTF-8 BOM for Microsoft Excel compatibility
       csv += `정기전,${hist.title}\n날짜,${hist.date}\n게임 수,${hist.gamesCount}\n\n`;
       csv += `순위,회원명,`;
       for (let g = 1; g <= hist.gamesCount; g++) {
@@ -1396,7 +1887,7 @@
         members,
         matchHistory,
         currentMatch,
-        version: '3.0-sanarae',
+        version: '5.0-sanarae',
         exportedAt: new Date().toISOString()
       };
       const jsonStr = JSON.stringify(data, null, 2);
@@ -1409,7 +1900,6 @@
       showToast('사나래 클럽 전체 데이터가 JSON 파일로 백업되었습니다.');
     }
 
-    // Custom Confirmation Dialog (Replaces window.confirm safely)
     let currentConfirmCallback = null;
 
     function showConfirmModal(title, message, onConfirm) {
@@ -1438,7 +1928,7 @@
     function requestResetData() {
       showConfirmModal(
         '데이터 초기화',
-        '모든 회원 명단과 정기전 기록을 사나래 기본 데이터(6명)로 초기화하시겠습니까?',
+        '모든 회원 명단과 정기전 기록을 사나래 기본 데이터(6명 / 5회 정기전)로 초기화하시겠습니까?',
         () => {
           localStorage.removeItem(STORAGE_KEY_MEMBERS);
           localStorage.removeItem(STORAGE_KEY_HISTORY);
@@ -1448,7 +1938,6 @@
           renderScoreTable();
           renderMembersList();
           renderHistoryList();
-          updateClubStats();
           showToast('사나래 클럽 데이터가 초기 상태로 재설정되었습니다.');
         }
       );
